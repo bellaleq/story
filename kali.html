@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Messenger - سیستم پیام‌رسان امن</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --card-bg: #111111;
+            --border-color: #003b00;
+            --text-primary: #00ff41;
+            --text-secondary: #008f11;
+            --danger: #ff003c;
+            --warning: #ffaa00;
+            --purple: #8a2be2;
+            --blue: #4285f4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 65, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 65, 0.05) 0%, transparent 20%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 65, 0.03) 2px,
+                    rgba(0, 255, 65, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Mobile Styles */
+        .mobile-header {
+            display: none;
+            background: var(--darker-bg);
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 10px;
+            z-index: 100;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .nav-btn.active {
+            color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--matrix-green);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Desktop Layout */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 15px;
+            height: 100vh;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--matrix-green), transparent);
+        }
+        
+        header {
+            padding: 20px;
+            background: var(--darker-bg);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px var(--matrix-green);
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--matrix-green);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: var(--matrix-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-bg);
+            font-weight: bold;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            color: var(--matrix-green);
+        }
+        
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: var(--matrix-green);
+            text-shadow: 0 0 15px var(--matrix-green);
+        }
+        
+        .login-container p {
+            margin-bottom: 30px;
+            max-width: 500px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-tab {
+            padding: 12px 24px;
+            background: var(--darker-bg);
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .login-tab.active {
+            background: var(--matrix-green);
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--matrix-green);
+            transition: all 0.3s;
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: var(--matrix-green);
+            color: var(--dark-bg);
+        }
+        
+        .btn-primary:hover {
+            background: #00cc33;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #cc002f;
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.5);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark-bg);
+        }
+        
+        .btn-warning:hover {
+            background: #e69500;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .chat-header {
+            background: var(--darker-bg);
+            color: var(--matrix-green);
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--darker-bg);
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 85%;
+            position: relative;
+            word-wrap: break-word;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            transition: all 0.3s;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+            border-color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.05);
+        }
+        
+        .message.received {
+            align-self: flex-start;
+            border-color: var(--border-color);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            text-align: left;
+            color: var(--text-secondary);
+        }
+        
+        .message.deleting {
+            animation: fadeOut 0.5s forwards;
+        }
+        
+        .delete-timer {
+            height: 2px;
+            background: var(--warning);
+            border-radius: 1px;
+            margin-top: 5px;
+            transition: width 1s linear;
+        }
+        
+        .message-actions {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: none;
+        }
+        
+        .message:hover .message-actions {
+            display: block;
+        }
+        
+        .file-attachment {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        
+        @keyframes fadeOut {
+            from { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            to { 
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        
+        .input-container {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+            background: var(--card-bg);
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            background: var(--darker-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--matrix-green);
+            resize: none;
+            height: 60px;
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .send-button {
+            background: var(--matrix-green);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 6px;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        
+        .send-button:hover {
+            background: #00cc33;
+        }
+        
+        .send-button:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        .upload-btn {
+            background: transparent;
+            color: var(--matrix-green);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+            border-color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .groups-container, .users-container {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            margin-bottom: 15px;
+            color: var(--matrix-green);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .group-item, .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        
+        .group-item:hover, .user-item:hover {
+            border-color: var(--border-color);
+            background: rgba(0, 255, 65, 0.05);
+        }
+        
+        .group-item.active, .user-item.active {
+            border-color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .group-avatar, .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: var(--matrix-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-bg);
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--matrix-green);
+        }
+        
+        .user-status.offline {
+            background: var(--text-secondary);
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-section {
+            margin-bottom: 20px;
+        }
+        
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .user-list, .group-list-admin {
+            list-style-type: none;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        
+        .user-list li, .group-list-admin li {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-actions, .group-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .logout-button {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 15px;
+            font-weight: bold;
+        }
+        
+        .logout-button:hover {
+            background: rgba(255, 0, 60, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: var(--matrix-green);
+            background: var(--card-bg);
+            border: 1px solid var(--matrix-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            z-index: 1000;
+            display: none;
+            font-weight: bold;
+            max-width: 90%;
+        }
+        
+        .notification.error {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 255, 65, 0.3);
+            border-top-color: var(--matrix-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--matrix-green);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--matrix-green);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .cleanup-section {
+            background: rgba(255, 0, 60, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .cleanup-title {
+            color: var(--danger);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 250px 1fr;
+            }
+            
+            .admin-panel {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 220px 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+                height: calc(100vh - 120px);
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .card {
+                display: none;
+                margin-bottom: 0;
+                height: 100%;
+            }
+            
+            .card.active {
+                display: flex;
+            }
+            
+            .chat-header {
+                padding: 12px;
+            }
+            
+            .chat-actions {
+                flex-wrap: wrap;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .input-container {
+                padding: 12px;
+            }
+            
+            .login-container {
+                padding: 20px 15px;
+            }
+            
+            .login-tabs {
+                flex-direction: column;
+            }
+            
+            .login-tab {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .chat-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .chat-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .message {
+                max-width: 95%;
+                padding: 10px 12px;
+            }
+            
+            .user-info {
+                padding: 12px;
+            }
+            
+            .groups-container, .users-container {
+                padding: 12px;
+            }
+            
+            .section-title {
+                font-size: 0.9rem;
+            }
+            
+            .group-item, .user-item {
+                padding: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        .type-indicator {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        
+        .terminal-text {
+            color: var(--matrix-green);
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            <span>SECURE MESSENGER</span>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <div class="container">
+        <!-- پنل سمت چپ - گروه‌ها و کاربران -->
+        <div class="card active" id="sidebarPanel">
+            <header>
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <span>SECURE MESSENGER</span>
+                </div>
+            </header>
+            
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">کاربر</div>
+                    <div class="user-role" id="userRole">کاربر عادی</div>
+                </div>
+            </div>
+            
+            <div class="groups-container">
+                <div class="section-title">
+                    <i class="fas fa-users"></i>
+                    گروه‌ها
+                </div>
+                <div id="groupsList">
+                    <!-- لیست گروه‌ها در اینجا نمایش داده می‌شود -->
+                </div>
+                
+                <div class="section-title" style="margin-top: 20px;">
+                    <i class="fas fa-user-friends"></i>
+                    کاربران
+                </div>
+                <div id="usersList">
+                    <!-- لیست کاربران در اینجا نمایش داده می‌شود -->
+                </div>
+            </div>
+            
+            <button class="logout-button" id="logoutButton" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i>
+                خروج از سیستم
+            </button>
+        </div>
+        
+        <!-- پنل وسط - چت -->
+        <div class="card active" id="chatPanel">
+            <div class="login-container" id="loginContainer">
+                <h1>SECURE MESSENGER</h1>
+                <p>سیستم پیام‌رسان امن با قابلیت پاکسازی کامل پیام‌ها</p>
+                <p class="terminal-text">> سیستم آماده است. لطفاً وارد شوید...</p>
+                
+                <div class="login-tabs">
+                    <button class="login-tab active" id="userLoginTab">ورود کاربر</button>
+                    <button class="login-tab" id="adminLoginTab">ورود مدیر</button>
+                    <button class="login-tab" id="registerTab">ثبت‌نام کاربر</button>
+                </div>
+                
+                <!-- فرم ورود کاربر -->
+                <div id="userLoginForm">
+                    <div class="form-group">
+                        <label class="form-label">ایمیل</label>
+                        <input type="email" class="form-input" id="userEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">رمز عبور</label>
+                        <input type="password" class="form-input" id="userPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" id="userLoginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        ورود به سیستم
+                    </button>
+                </div>
+                
+                <!-- فرم ورود مدیر -->
+                <div id="adminLoginForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">ایمیل مدیر</label>
+                        <input type="email" class="form-input" id="adminEmail" placeholder="admin@system.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">رمز عبور مدیر</label>
+                        <input type="password" class="form-input" id="adminPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" id="adminLoginBtn">
+                        <i class="fas fa-user-shield"></i>
+                        ورود به پنل مدیریت
+                    </button>
+                </div>
+                
+                <!-- فرم ثبت‌نام کاربر -->
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">نام کامل</label>
+                        <input type="text" class="form-input" id="regName" placeholder="نام و نام خانوادگی">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ایمیل</label>
+                        <input type="email" class="form-input" id="regEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">رمز عبور</label>
+                        <input type="password" class="form-input" id="regPassword" placeholder="حداقل 8 کاراکتر">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">تکرار رمز عبور</label>
+                        <input type="password" class="form-input" id="regPasswordConfirm" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" id="registerBtn">
+                        <i class="fas fa-user-plus"></i>
+                        ثبت‌نام در سیستم
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-header">
+                    <h2 id="chatTitle">گروه عمومی</h2>
+                    <div class="chat-actions">
+                        <button class="btn btn-secondary btn-small" id="clearChatBtn">
+                            <i class="fas fa-trash"></i>
+                            پاک کردن چت
+                        </button>
+                        <button class="btn btn-danger btn-small" id="deleteAllMessagesBtn">
+                            <i class="fas fa-broom"></i>
+                            حذف تمام پیام‌ها
+                        </button>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-icon">💬</div>
+                        <h3>هنوز پیامی وجود ندارد</h3>
+                        <p>اولین پیام را ارسال کنید یا از لیست سمت چپ یک گروه انتخاب کنید</p>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <button class="upload-btn" id="uploadBtn" title="ارسال فایل">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <textarea class="message-input" id="messageInput" placeholder="پیام خود را اینجا تایپ کنید..." disabled></textarea>
+                    <button class="send-button" id="sendButton" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- پنل سمت راست - مدیریت -->
+        <div class="card" id="adminPanel">
+            <header>
+                <div class="logo">
+                    <div class="logo-icon">A</div>
+                    <span>پنل مدیریت</span>
+                </div>
+            </header>
+            
+            <div class="groups-container">
+                <div class="admin-section">
+                    <div class="section-title">مدیریت کاربران</div>
+                    <div class="admin-controls">
+                        <button class="btn btn-primary btn-small" id="addUserBtn">
+                            <i class="fas fa-user-plus"></i>
+                            افزودن کاربر
+                        </button>
+                        <button class="btn btn-secondary btn-small" id="refreshUsersBtn">
+                            <i class="fas fa-sync"></i>
+                            بروزرسانی
+                        </button>
+                    </div>
+                    <ul class="user-list" id="adminUserList">
+                        <!-- لیست کاربران برای مدیر -->
+                    </ul>
+                </div>
+                
+                <div class="admin-section">
+                    <div class="section-title">مدیریت گروه‌ها</div>
+                    <div class="admin-controls">
+                        <button class="btn btn-primary btn-small" id="addGroupBtn">
+                            <i class="fas fa-plus-circle"></i>
+                            ایجاد گروه
+                        </button>
+                        <button class="btn btn-secondary btn-small" id="refreshGroupsBtn">
+                            <i class="fas fa-sync"></i>
+                            بروزرسانی
+                        </button>
+                    </div>
+                    <ul class="group-list-admin" id="adminGroupList">
+                        <!-- لیست گروه‌ها برای مدیر -->
+                    </ul>
+                </div>
+                
+                <div class="admin-section">
+                    <div class="section-title">پاکسازی سیستم</div>
+                    <div class="cleanup-section">
+                        <div class="cleanup-title">
+                            <i class="fas fa-trash"></i>
+                            عملیات پاکسازی
+                        </div>
+                        <div class="admin-controls">
+                            <button class="btn btn-danger btn-small" id="clearAllMessagesBtn">
+                                <i class="fas fa-broom"></i>
+                                حذف تمام پیام‌ها
+                            </button>
+                            <button class="btn btn-warning btn-small" id="clearUserMessagesBtn">
+                                <i class="fas fa-user-times"></i>
+                                حذف پیام‌های کاربر
+                            </button>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px;">
+                            توجه: این عملیات غیرقابل بازگشت است!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <div class="section-title">آمار سیستم</div>
+                    <div class="terminal-text">
+                        <div><i class="fas fa-users"></i> کاربران آنلاین: <span id="onlineUsersCount">0</span></div>
+                        <div><i class="fas fa-comments"></i> تعداد گروه‌ها: <span id="groupsCount">0</span></div>
+                        <div><i class="fas fa-envelope"></i> پیام‌های امروز: <span id="messagesToday">0</span></div>
+                        <div><i class="fas fa-database"></i> کل پیام‌ها: <span id="totalMessages">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="nav-buttons">
+            <button class="nav-btn active" data-panel="sidebarPanel">
+                <i class="fas fa-users"></i>
+                <span>گروه‌ها</span>
+            </button>
+            <button class="nav-btn" data-panel="chatPanel">
+                <i class="fas fa-comments"></i>
+                <span>چت</span>
+            </button>
+            <button class="nav-btn" data-panel="adminPanel" id="adminNavBtn" style="display: none;">
+                <i class="fas fa-cog"></i>
+                <span>مدیریت</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- مودال‌ها -->
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ایجاد گروه جدید</h3>
+                <button class="modal-close" id="closeGroupModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">نام گروه</label>
+                    <input type="text" class="form-input" id="groupName" placeholder="نام گروه">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">توضیحات</label>
+                    <textarea class="form-input" id="groupDescription" placeholder="توضیحات گروه" rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary" id="createGroupBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    ایجاد گروه
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>افزودن کاربر جدید</h3>
+                <button class="modal-close" id="closeUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">نام کامل</label>
+                    <input type="text" class="form-input" id="newUserName" placeholder="نام و نام خانوادگی">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ایمیل</label>
+                    <input type="email" class="form-input" id="newUserEmail" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رمز عبور</label>
+                    <input type="password" class="form-input" id="newUserPassword" placeholder="حداقل 8 کاراکتر">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">نقش کاربر</label>
+                    <select class="form-input" id="newUserRole">
+                        <option value="user">کاربر عادی</option>
+                        <option value="moderator">ناظر</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="createUserBtn">
+                    <i class="fas fa-user-plus"></i>
+                    ایجاد کاربر
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // تنظیمات Supabase
+        const SUPABASE_URL = 'https://your-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'your-anon-key';
+        
+        // ایجاد کلاینت Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // وضعیت برنامه
+        let currentUser = null;
+        let currentGroup = null;
+        let isAdmin = false;
+        let messages = [];
+        let users = [];
+        let groups = [];
+        let messageTimers = {};
+        
+        // المنت‌های DOM
+        const loginContainer = document.getElementById('loginContainer');
+        const chatContainer = document.getElementById('chatContainer');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        const userAvatar = document.getElementById('userAvatar');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const usersList = document.getElementById('usersList');
+        const groupsList = document.getElementById('groupsList');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminUserList = document.getElementById('adminUserList');
+        const adminGroupList = document.getElementById('adminGroupList');
+        const logoutButton = document.getElementById('logoutButton');
+        const notification = document.getElementById('notification');
+        const chatTitle = document.getElementById('chatTitle');
+        const emptyState = document.getElementById('emptyState');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const adminNavBtn = document.getElementById('adminNavBtn');
+        const navButtons = document.querySelectorAll('.nav-btn');
+        
+        // راه‌اندازی برنامه
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            checkAuthState();
+            setupMobileNavigation();
+        });
+        
+        // تنظیم ناوبری موبایل
+        function setupMobileNavigation() {
+            // دکمه منوی موبایل
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebarPanel');
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // دکمه‌های ناوبری
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const panelId = this.getAttribute('data-panel');
+                    switchPanel(panelId);
+                    
+                    // به‌روزرسانی وضعیت فعال
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        // تغییر پنل در موبایل
+        function switchPanel(panelId) {
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById(panelId).classList.add('active');
+        }
+        
+        // تنظیم رویدادها
+        function setupEventListeners() {
+            // تب‌های ورود
+            document.getElementById('userLoginTab').addEventListener('click', () => switchLoginTab('user'));
+            document.getElementById('adminLoginTab').addEventListener('click', () => switchLoginTab('admin'));
+            document.getElementById('registerTab').addEventListener('click', () => switchLoginTab('register'));
+            
+            // دکمه‌های ورود
+            document.getElementById('userLoginBtn').addEventListener('click', userLogin);
+            document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+            document.getElementById('registerBtn').addEventListener('click', registerUser);
+            
+            // دکمه‌های چت
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // دکمه‌های پاکسازی
+            document.getElementById('clearChatBtn').addEventListener('click', clearCurrentChat);
+            document.getElementById('deleteAllMessagesBtn').addEventListener('click', deleteAllUserMessages);
+            document.getElementById('clearAllMessagesBtn').addEventListener('click', clearAllMessages);
+            document.getElementById('clearUserMessagesBtn').addEventListener('click', clearUserMessages);
+            
+            // دکمه آپلود فایل
+            document.getElementById('uploadBtn').addEventListener('click', uploadFile);
+            
+            // دکمه‌های مدیریت
+            document.getElementById('addUserBtn').addEventListener('click', showAddUserModal);
+            document.getElementById('addGroupBtn').addEventListener('click', showAddGroupModal);
+            document.getElementById('refreshUsersBtn').addEventListener('click', loadUsers);
+            document.getElementById('refreshGroupsBtn').addEventListener('click', loadGroups);
+            document.getElementById('createGroupBtn').addEventListener('click', createGroup);
+            document.getElementById('createUserBtn').addEventListener('click', createUser);
+            
+            // بستن مودال‌ها
+            document.getElementById('closeGroupModal').addEventListener('click', () => {
+                document.getElementById('createGroupModal').style.display = 'none';
+            });
+            
+            document.getElementById('closeUserModal').addEventListener('click', () => {
+                document.getElementById('addUserModal').style.display = 'none';
+            });
+            
+            // بستن مودال با کلیک خارج
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // خروج
+            logoutButton.addEventListener('click', signOut);
+        }
+        
+        // تغییر تب ورود
+        function switchLoginTab(tab) {
+            document.getElementById('userLoginTab').classList.remove('active');
+            document.getElementById('adminLoginTab').classList.remove('active');
+            document.getElementById('registerTab').classList.remove('active');
+            
+            document.getElementById('userLoginForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            
+            switch(tab) {
+                case 'user':
+                    document.getElementById('userLoginTab').classList.add('active');
+                    document.getElementById('userLoginForm').style.display = 'block';
+                    break;
+                case 'admin':
+                    document.getElementById('adminLoginTab').classList.add('active');
+                    document.getElementById('adminLoginForm').style.display = 'block';
+                    break;
+                case 'register':
+                    document.getElementById('registerTab').classList.add('active');
+                    document.getElementById('registerForm').style.display = 'block';
+                    break;
+            }
+        }
+        
+        // بررسی وضعیت احراز هویت
+        async function checkAuthState() {
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) throw error;
+                
+                if (data.session) {
+                    currentUser = data.session.user;
+                    await initializeApp();
+                }
+            } catch (error) {
+                console.error('Error checking auth state:', error);
+            }
+        }
+        
+        // ورود کاربر
+        async function userLogin() {
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            
+            if (!email || !password) {
+                showNotification('لطفاً ایمیل و رمز عبور را وارد کنید', true);
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) throw error;
+                
+                currentUser = data.user;
+                isAdmin = false;
+                await initializeApp();
+                showNotification('با موفقیت وارد شدید');
+                
+            } catch (error) {
+                console.error('Error signing in:', error);
+                showNotification('خطا در ورود: ' + error.message, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // ورود مدیر
+        async function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (!email || !password) {
+                showNotification('لطفاً ایمیل و رمز عبور مدیر را وارد کنید', true);
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                // در حالت واقعی، این اطلاعات از دیتابیس چک می‌شود
+                // شبیه‌سازی تأخیر شبکه
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (email === 'admin@system.com' && password === 'admin123') {
+                    currentUser = {
+                        id: 'admin',
+                        email: 'admin@system.com',
+                        user_metadata: { full_name: 'مدیر سیستم' }
+                    };
+                    isAdmin = true;
+                    await initializeApp();
+                    showNotification('به پنل مدیریت خوش آمدید');
+                } else {
+                    showNotification('اطلاعات ورود مدیر نادرست است', true);
+                }
+                
+            } catch (error) {
+                console.error('Error in admin login:', error);
+                showNotification('خطا در ورود مدیر', true);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // ثبت‌نام کاربر جدید
+        async function registerUser() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+            
+            if (!name || !email || !password) {
+                showNotification('لطفاً تمام فیلدها را پر کنید', true);
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                showNotification('رمز عبور و تکرار آن مطابقت ندارند', true);
+                return;
+            }
+            
+            if (password.length < 8) {
+                showNotification('رمز عبور باید حداقل 8 کاراکتر باشد', true);
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                // در حالت واقعی، کاربر در Supabase Auth ثبت می‌شود
+                // شبیه‌سازی تأخیر شبکه
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // اضافه کردن کاربر به لیست
+                const newUser = {
+                    id: 'user_' + Date.now(),
+                    name: name,
+                    email: email,
+                    avatar: null,
+                    isOnline: true,
+                    role: 'user',
+                    status: 'pending',
+                    created_at: new Date()
+                };
+                
+                users.push(newUser);
+                showNotification('ثبت‌نام با موفقیت انجام شد. منتظر تایید مدیر باشید.');
+                switchLoginTab('user');
+                
+                // پاک کردن فرم
+                document.getElementById('regName').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regPasswordConfirm').value = '';
+                
+            } catch (error) {
+                console.error('Error registering user:', error);
+                showNotification('خطا در ثبت‌نام: ' + error.message, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // خروج
+        async function signOut() {
+            try {
+                showLoading(true);
+                
+                if (!isAdmin) {
+                    const { error } = await supabase.auth.signOut();
+                    if (error) throw error;
+                }
+                
+                currentUser = null;
+                isAdmin = false;
+                showLoginScreen();
+                showNotification('با موفقیت خارج شدید');
+                
+            } catch (error) {
+                console.error('Error signing out:', error);
+                showNotification('خطا در خروج', true);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // نمایش حالت بارگذاری
+        function showLoading(show) {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                if (show) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px;"></div> در حال پردازش...';
+                } else {
+                    btn.disabled = false;
+                    // بازگرداندن متن اصلی دکمه‌ها
+                    // در حالت واقعی این بخش نیاز به پیاده‌سازی بهتر دارد
+                }
+            });
+        }
+        
+        // مقداردهی اولیه برنامه
+        async function initializeApp() {
+            try {
+                displayUserInfo();
+                showChatScreen();
+                await loadUsers();
+                await loadGroups();
+                
+                if (isAdmin) {
+                    adminPanel.style.display = 'block';
+                    if (adminNavBtn) adminNavBtn.style.display = 'flex';
+                    loadAdminData();
+                }
+                
+                // انتخاب گروه پیش‌فرض
+                if (groups.length > 0) {
+                    selectGroup(groups[0]);
+                }
+                
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showNotification('خطا در بارگذاری برنامه', true);
+            }
+        }
+        
+        // نمایش اطلاعات کاربر
+        function displayUserInfo() {
+            if (!currentUser) return;
+            
+            userName.textContent = currentUser.user_metadata?.full_name || currentUser.email;
+            userRole.textContent = isAdmin ? 'مدیر سیستم' : 'کاربر عادی';
+            
+            const initial = (currentUser.user_metadata?.full_name || currentUser.email || 'User').charAt(0).toUpperCase();
+            userAvatar.textContent = initial;
+            
+            userInfo.style.display = 'flex';
+            logoutButton.style.display = 'block';
+        }
+        
+        // نمایش صفحه ورود
+        function showLoginScreen() {
+            loginContainer.style.display = 'flex';
+            chatContainer.style.display = 'none';
+            userInfo.style.display = 'none';
+            logoutButton.style.display = 'none';
+            adminPanel.style.display = 'none';
+            if (adminNavBtn) adminNavBtn.style.display = 'none';
+        }
+        
+        // نمایش صفحه چت
+        function showChatScreen() {
+            loginContainer.style.display = 'none';
+            chatContainer.style.display = 'flex';
+            userInfo.style.display = 'flex';
+            logoutButton.style.display = 'block';
+        }
+        
+        // بارگذاری کاربران
+        async function loadUsers() {
+            try {
+                // در حالت واقعی از Supabase بارگذاری می‌شود
+                // داده‌های نمونه
+                users = [
+                    { id: '1', name: 'کاربر نمونه ۱', email: 'user1@example.com', avatar: null, isOnline: true, role: 'user', status: 'active' },
+                    { id: '2', name: 'کاربر نمونه ۲', email: 'user2@example.com', avatar: null, isOnline: true, role: 'user', status: 'active' },
+                    { id: '3', name: 'ناظر سیستم', email: 'mod@example.com', avatar: null, isOnline: false, role: 'moderator', status: 'active' },
+                    { id: '4', name: 'کاربر جدید', email: 'newuser@example.com', avatar: null, isOnline: false, role: 'user', status: 'pending' }
+                ];
+                
+                displayUsers();
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showNotification('خطا در بارگذاری کاربران', true);
+            }
+        }
+        
+        // نمایش کاربران
+        function displayUsers() {
+            if (!usersList) return;
+            
+            usersList.innerHTML = '';
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>هیچ کاربری یافت نشد</p></div>';
+                return;
+            }
+            
+            users.forEach(user => {
+                if (user.id === currentUser.id) return;
+                
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.dataset.userId = user.id;
+                
+                userItem.innerHTML = `
+                    <div class="user-status ${user.isOnline ? '' : 'offline'}"></div>
+                    <div class="user-avatar-small">
+                        ${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : user.name.charAt(0)}
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-role">${user.role === 'moderator' ? 'ناظر' : 'کاربر'} - ${user.isOnline ? 'آنلاین' : 'آفلاین'} ${user.status === 'pending' ? '(در انتظار تایید)' : ''}</div>
+                    </div>
+                `;
+                
+                userItem.addEventListener('click', () => startPrivateChat(user));
+                usersList.appendChild(userItem);
+            });
+        }
+        
+        // بارگذاری گروه‌ها
+        async function loadGroups() {
+            try {
+                // در حالت واقعی از Supabase بارگذاری می‌شود
+                // داده‌های نمونه
+                groups = [
+                    { id: '1', name: 'گروه عمومی', description: 'گفتگوی عمومی همه کاربران', members: ['1', '2', '3'], isPrivate: false, createdBy: 'admin' },
+                    { id: '2', name: 'پشتیبانی فنی', description: 'پشتیبانی و راهنمایی', members: ['1', '3'], isPrivate: true, createdBy: 'admin' },
+                    { id: '3', name: 'توسعه دهندگان', description: 'بحث‌های فنی', members: ['2', '3'], isPrivate: true, createdBy: 'admin' }
+                ];
+                
+                displayGroups();
+                
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                showNotification('خطا در بارگذاری گروه‌ها', true);
+            }
+        }
+        
+        // نمایش گروه‌ها
+        function displayGroups() {
+            if (!groupsList) return;
+            
+            groupsList.innerHTML = '';
+            
+            if (groups.length === 0) {
+                groupsList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>هیچ گروهی یافت نشد</p></div>';
+                return;
+            }
+            
+            groups.forEach(group => {
+                const groupItem = document.createElement('div');
+                groupItem.className = 'group-item';
+                groupItem.dataset.groupId = group.id;
+                
+                if (currentGroup && currentGroup.id === group.id) {
+                    groupItem.classList.add('active');
+                }
+                
+                groupItem.innerHTML = `
+                    <div class="group-avatar">G</div>
+                    <div class="user-details">
+                        <div class="user-name">${group.name}</div>
+                        <div class="user-role">${group.members.length} عضو</div>
+                    </div>
+                `;
+                
+                groupItem.addEventListener('click', () => selectGroup(group));
+                groupsList.appendChild(groupItem);
+            });
+        }
+        
+        // انتخاب گروه
+        function selectGroup(group) {
+            currentGroup = group;
+            displayGroups();
+            chatTitle.textContent = group.name;
+            loadMessages(group.id);
+            
+            // فعال کردن فیلد ورودی پیام
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            
+            // در موبایل، بعد از انتخاب گروه به پنل چت برو
+            if (window.innerWidth <= 768) {
+                switchPanel('chatPanel');
+                navButtons.forEach(btn => {
+                    if (btn.getAttribute('data-panel') === 'chatPanel') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        // شروع چت خصوصی
+        function startPrivateChat(user) {
+            const privateGroup = {
+                id: `private_${user.id}`,
+                name: `چت با ${user.name}`,
+                description: `چت خصوصی با ${user.name}`,
+                members: [currentUser.id, user.id],
+                isPrivate: true,
+                isDirect: true
+            };
+            
+            selectGroup(privateGroup);
+        }
+        
+        // بارگذاری پیام‌ها
+        async function loadMessages(groupId) {
+            try {
+                messagesContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                
+                // در حالت واقعی از Supabase بارگذاری می‌شود
+                // شبیه‌سازی تأخیر شبکه
+                setTimeout(() => {
+                    messages = [
+                        {
+                            id: '1',
+                            text: 'سلام! به گروه خوش آمدید.',
+                            sender_id: '1',
+                            group_id: groupId,
+                            created_at: new Date(Date.now() - 60000),
+                            is_read: true,
+                            type: 'text'
+                        },
+                        {
+                            id: '2',
+                            text: 'ممنون! فضای خوبی دارید اینجا.',
+                            sender_id: currentUser.id,
+                            group_id: groupId,
+                            created_at: new Date(Date.now() - 30000),
+                            is_read: true,
+                            type: 'text'
+                        }
+                    ];
+                    
+                    displayMessages();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                showNotification('خطا در بارگذاری پیام‌ها', true);
+            }
+        }
+        
+        // نمایش پیام‌ها
+        function displayMessages() {
+            if (!messagesContainer) return;
+            
+            messagesContainer.innerHTML = '';
+            
+            if (messages.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            messages.forEach(message => {
+                displayMessage(message);
+            });
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // نمایش یک پیام
+        function displayMessage(message) {
+            const messageElement = document.createElement('div');
+            const isSent = message.sender_id === currentUser.id;
+            
+            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageElement.dataset.messageId = message.id;
+            
+            const timeString = new Date(message.created_at).toLocaleTimeString('fa-IR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let messageHeader = '';
+            if (!isSent) {
+                const sender = users.find(u => u.id === message.sender_id);
+                messageHeader = `<div class="message-header">${sender ? sender.name : 'کاربر'}</div>`;
+            }
+            
+            let messageContent = '';
+            if (message.type === 'text') {
+                messageContent = `<div>${message.text}</div>`;
+            } else if (message.type === 'file') {
+                messageContent = `
+                    <div class="file-attachment">
+                        <span class="file-icon">📎</span>
+                        <strong>${message.file_name}</strong>
+                        <div>(${formatFileSize(message.file_size)})</div>
+                        <a href="${message.file_url}" target="_blank" style="color: var(--matrix-green);">دانلود</a>
+                    </div>
+                `;
+            }
+            
+            messageElement.innerHTML = `
+                <div class="message-actions">
+                    <button class="btn-small" onclick="deleteSingleMessage('${message.id}')">×</button>
+                </div>
+                ${messageHeader}
+                ${messageContent}
+                <div class="message-time">${timeString}</div>
+                <div class="type-indicator">${message.type === 'text' ? 'متن' : 'فایل'}</div>
+            `;
+            
+            // اگر پیام دریافت شده و هنوز خوانده نشده، تایمر حذف را تنظیم کن
+            if (!isSent && !message.is_read) {
+                const deleteTimer = document.createElement('div');
+                deleteTimer.className = 'delete-timer';
+                messageElement.appendChild(deleteTimer);
+                
+                startDeleteTimer(message.id, deleteTimer);
+            }
+            
+            messagesContainer.appendChild(messageElement);
+        }
+        
+        // شروع تایمر حذف پیام
+        function startDeleteTimer(messageId, timerElement) {
+            if (messageTimers[messageId]) {
+                clearTimeout(messageTimers[messageId]);
+            }
+            
+            messageTimers[messageId] = setTimeout(() => {
+                deleteSingleMessage(messageId);
+            }, 20000);
+            
+            let width = 100;
+            const interval = setInterval(() => {
+                width -= (100 / 20);
+                timerElement.style.width = `${width}%`;
+                
+                if (width <= 0) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+        
+        // حذف یک پیام
+        function deleteSingleMessage(messageId) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.classList.add('deleting');
+                setTimeout(() => {
+                    messageElement.remove();
+                    delete messageTimers[messageId];
+                    
+                    // حذف از آرایه پیام‌ها
+                    messages = messages.filter(m => m.id !== messageId);
+                    
+                    // اگر همه پیام‌ها حذف شدند، حالت خالی نمایش داده شود
+                    if (messages.length === 0) {
+                        emptyState.style.display = 'block';
+                    }
+                    
+                    showNotification('پیام حذف شد');
+                }, 500);
+            }
+        }
+        
+        // پاک کردن چت فعلی
+        function clearCurrentChat() {
+            if (!currentGroup) {
+                showNotification('لطفاً ابتدا یک گروه انتخاب کنید', true);
+                return;
+            }
+            
+            if (confirm('آیا از پاک کردن تمام پیام‌های این چت اطمینان دارید؟ این عمل غیرقابل بازگشت است.')) {
+                // پاک کردن تمام تایمرها
+                Object.keys(messageTimers).forEach(messageId => {
+                    clearTimeout(messageTimers[messageId]);
+                });
+                messageTimers = {};
+                
+                // پاک کردن پیام‌ها از آرایه
+                messages = messages.filter(m => m.group_id !== currentGroup.id);
+                
+                // پاک کردن نمایش پیام‌ها
+                messagesContainer.innerHTML = '';
+                emptyState.style.display = 'block';
+                
+                showNotification('تمام پیام‌های این چت پاک شد');
+            }
+        }
+        
+        // حذف تمام پیام‌های کاربر
+        function deleteAllUserMessages() {
+            if (confirm('آیا از حذف تمام پیام‌های ارسالی و دریافتی خود اطمینان دارید؟ این عمل غیرقابل بازگشت است.')) {
+                // پاک کردن تمام تایمرها
+                Object.keys(messageTimers).forEach(messageId => {
+                    clearTimeout(messageTimers[messageId]);
+                });
+                messageTimers = {};
+                
+                // پاک کردن پیام‌های کاربر از آرایه
+                messages = messages.filter(m => m.sender_id !== currentUser.id);
+                
+                // نمایش مجدد پیام‌ها
+                displayMessages();
+                
+                showNotification('تمام پیام‌های شما حذف شد');
+            }
+        }
+        
+        // حذف تمام پیام‌های سیستم (مدیر)
+        function clearAllMessages() {
+            if (!isAdmin) {
+                showNotification('شما دسترسی لازم برای این عمل را ندارید', true);
+                return;
+            }
+            
+            if (confirm('آیا از حذف تمام پیام‌های سیستم اطمینان دارید؟ این عمل غیرقابل بازگشت است و بر تمام کاربران تاثیر می‌گذارد.')) {
+                // پاک کردن تمام تایمرها
+                Object.keys(messageTimers).forEach(messageId => {
+                    clearTimeout(messageTimers[messageId]);
+                });
+                messageTimers = {};
+                
+                // پاک کردن تمام پیام‌ها
+                messages = [];
+                
+                // پاک کردن نمایش پیام‌ها
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                    emptyState.style.display = 'block';
+                }
+                
+                showNotification('تمام پیام‌های سیستم حذف شد');
+            }
+        }
+        
+        // حذف پیام‌های یک کاربر خاص (مدیر)
+        function clearUserMessages() {
+            if (!isAdmin) {
+                showNotification('شما دسترسی لازم برای این عمل را ندارید', true);
+                return;
+            }
+            
+            const userId = prompt('لطفاً ID کاربر مورد نظر را وارد کنید:');
+            if (userId) {
+                if (confirm(`آیا از حذف تمام پیام‌های کاربر ${userId} اطمینان دارید؟`)) {
+                    // پاک کردن پیام‌های کاربر
+                    messages = messages.filter(m => m.sender_id !== userId);
+                    
+                    // نمایش مجدد پیام‌ها
+                    displayMessages();
+                    
+                    showNotification(`تمام پیام‌های کاربر ${userId} حذف شد`);
+                }
+            }
+        }
+        
+        // ارسال پیام
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            
+            if (!text || !currentGroup) return;
+            
+            try {
+                const newMessage = {
+                    id: Date.now().toString(),
+                    text: text,
+                    sender_id: currentUser.id,
+                    group_id: currentGroup.id,
+                    created_at: new Date(),
+                    is_read: false,
+                    type: 'text'
+                };
+                
+                // اضافه کردن به آرایه پیام‌ها
+                messages.push(newMessage);
+                
+                // نمایش پیام
+                displayMessage(newMessage);
+                
+                messageInput.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // شبیه‌سازی دریافت پاسخ
+                simulateReply(newMessage);
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showNotification('خطا در ارسال پیام', true);
+            }
+        }
+        
+        // آپلود فایل
+        async function uploadFile() {
+            // ایجاد input فایل پویا
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '*/*';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            fileInput.click();
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // در حالت واقعی، فایل آپلود می‌شود
+                    showNotification(`فایل "${file.name}" انتخاب شد. در نسخه کامل آپلود خواهد شد.`);
+                    
+                    // ایجاد پیام فایل
+                    const fileMessage = {
+                        id: Date.now().toString(),
+                        file_name: file.name,
+                        file_size: file.size,
+                        file_url: '#',
+                        sender_id: currentUser.id,
+                        group_id: currentGroup.id,
+                        created_at: new Date(),
+                        is_read: false,
+                        type: 'file'
+                    };
+                    
+                    messages.push(fileMessage);
+                    displayMessage(fileMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+                
+                // پاک کردن input
+                document.body.removeChild(fileInput);
+            });
+        }
+        
+        // شبیه‌سازی پاسخ
+        function simulateReply(originalMessage) {
+            if (currentGroup.isDirect) return;
+            
+            setTimeout(() => {
+                const otherUsers = currentGroup.members.filter(id => id !== currentUser.id);
+                if (otherUsers.length > 0) {
+                    const randomUserId = otherUsers[Math.floor(Math.random() * otherUsers.length)];
+                    const randomUser = users.find(u => u.id === randomUserId);
+                    
+                    if (randomUser && randomUser.isOnline) {
+                        const replyMessage = {
+                            id: (Date.now() + 1).toString(),
+                            text: `پاسخ به: "${originalMessage.text}"`,
+                            sender_id: randomUser.id,
+                            group_id: currentGroup.id,
+                            created_at: new Date(),
+                            is_read: false,
+                            type: 'text'
+                        };
+                        
+                        messages.push(replyMessage);
+                        displayMessage(replyMessage);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+                }
+            }, 2000);
+        }
+        
+        // نمایش مودال افزودن کاربر
+        function showAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+        
+        // نمایش مودال ایجاد گروه
+        function showAddGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'flex';
+        }
+        
+        // ایجاد گروه جدید
+        async function createGroup() {
+            const name = document.getElementById('groupName').value;
+            const description = document.getElementById('groupDescription').value;
+            
+            if (!name) {
+                showNotification('لطفاً نام گروه را وارد کنید', true);
+                return;
+            }
+            
+            try {
+                const newGroup = {
+                    id: 'group_' + Date.now(),
+                    name: name,
+                    description: description,
+                    members: [currentUser.id],
+                    isPrivate: false,
+                    createdBy: currentUser.id,
+                    created_at: new Date()
+                };
+                
+                groups.push(newGroup);
+                displayGroups();
+                
+                document.getElementById('createGroupModal').style.display = 'none';
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupDescription').value = '';
+                
+                showNotification('گروه با موفقیت ایجاد شد');
+                
+            } catch (error) {
+                console.error('Error creating group:', error);
+                showNotification('خطا در ایجاد گروه', true);
+            }
+        }
+        
+        // ایجاد کاربر جدید
+        async function createUser() {
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+            
+            if (!name || !email || !password) {
+                showNotification('لطفاً تمام فیلدها را پر کنید', true);
+                return;
+            }
+            
+            try {
+                const newUser = {
+                    id: 'user_' + Date.now(),
+                    name: name,
+                    email: email,
+                    avatar: null,
+                    isOnline: false,
+                    role: role,
+                    status: 'active',
+                    created_at: new Date()
+                };
+                
+                users.push(newUser);
+                displayUsers();
+                displayAdminUsers();
+                
+                document.getElementById('addUserModal').style.display = 'none';
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserEmail').value = '';
+                document.getElementById('newUserPassword').value = '';
+                
+                showNotification('کاربر با موفقیت ایجاد شد');
+                
+            } catch (error) {
+                console.error('Error creating user:', error);
+                showNotification('خطا در ایجاد کاربر', true);
+            }
+        }
+        
+        // بارگذاری داده‌های مدیریت
+        function loadAdminData() {
+            displayAdminUsers();
+            displayAdminGroups();
+            updateStats();
+        }
+        
+        // نمایش کاربران برای مدیر
+        function displayAdminUsers() {
+            if (!adminUserList) return;
+            
+            adminUserList.innerHTML = '';
+            
+            if (users.length === 0) {
+                adminUserList.innerHTML = '<li style="text-align: center; padding: 20px; color: var(--text-secondary);">هیچ کاربری یافت نشد</li>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div>
+                        <strong>${user.name}</strong>
+                        <div>${user.email} - ${user.role === 'moderator' ? 'ناظر' : 'کاربر'} - ${user.status === 'pending' ? 'در انتظار تایید' : 'فعال'}</div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                adminUserList.appendChild(listItem);
+            });
+        }
+        
+        // نمایش گروه‌ها برای مدیر
+        function displayAdminGroups() {
+            if (!adminGroupList) return;
+            
+            adminGroupList.innerHTML = '';
+            
+            if (groups.length === 0) {
+                adminGroupList.innerHTML = '<li style="text-align: center; padding: 20px; color: var(--text-secondary);">هیچ گروهی یافت نشد</li>';
+                return;
+            }
+            
+            groups.forEach(group => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div>
+                        <strong>${group.name}</strong>
+                        <div>${group.members.length} عضو - ${group.isPrivate ? 'خصوصی' : 'عمومی'}</div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editGroup('${group.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="deleteGroup('${group.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                adminGroupList.appendChild(listItem);
+            });
+        }
+        
+        // به‌روزرسانی آمار
+        function updateStats() {
+            document.getElementById('onlineUsersCount').textContent = users.filter(u => u.isOnline).length;
+            document.getElementById('groupsCount').textContent = groups.length;
+            document.getElementById('messagesToday').textContent = messages.filter(m => {
+                const today = new Date();
+                const messageDate = new Date(m.created_at);
+                return messageDate.toDateString() === today.toDateString();
+            }).length;
+            document.getElementById('totalMessages').textContent = messages.length;
+        }
+        
+        // نمایش اعلان
+        function showNotification(message, isError = false) {
+            notification.textContent = message;
+            notification.className = `notification ${isError ? 'error' : ''}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+        
+        // فرمت سایز فایل
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // توابع مدیریت (برای دکمه‌ها)
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                document.getElementById('newUserName').value = user.name;
+                document.getElementById('newUserEmail').value = user.email;
+                document.getElementById('newUserRole').value = user.role;
+                document.getElementById('newUserPassword').value = '';
+                showAddUserModal();
+                showNotification(`در حال ویرایش کاربر ${user.name}`);
+            }
+        }
+        
+        function deleteUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user && confirm(`آیا از حذف کاربر "${user.name}" اطمینان دارید؟`)) {
+                users = users.filter(u => u.id !== userId);
+                displayUsers();
+                displayAdminUsers();
+                showNotification('کاربر با موفقیت حذف شد');
+            }
+        }
+        
+        function editGroup(groupId) {
+            const group = groups.find(g => g.id === groupId);
+            if (group) {
+                document.getElementById('groupName').value = group.name;
+                document.getElementById('groupDescription').value = group.description || '';
+                showAddGroupModal();
+                showNotification(`در حال ویرایش گروه ${group.name}`);
+            }
+        }
+        
+        function deleteGroup(groupId) {
+            const group = groups.find(g => g.id === groupId);
+            if (group && confirm(`آیا از حذف گروه "${group.name}" اطمینان دارید؟`)) {
+                groups = groups.filter(g => g.id !== groupId);
+                displayGroups();
+                displayAdminGroups();
+                
+                // اگر گروه فعلی حذف شده، گروه پیش‌فرض انتخاب شود
+                if (currentGroup && currentGroup.id === groupId) {
+                    if (groups.length > 0) {
+                        selectGroup(groups[0]);
+                    } else {
+                        currentGroup = null;
+                        chatTitle.textContent = 'انتخاب گروه';
+                        messagesContainer.innerHTML = '';
+                        emptyState.style.display = 'block';
+                        messageInput.disabled = true;
+                        sendButton.disabled = true;
+                    }
+                }
+                
+                showNotification('گروه با موفقیت حذف شد');
+            }
+        }
+        
+        // شنود تغییرات وضعیت احراز هویت
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                currentUser = session.user;
+                isAdmin = false;
+                initializeApp();
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                showLoginScreen();
+            }
+        });
+        
+        // تنظیمات رسپانسیو
+        window.addEventListener('resize', function() {
+            // در صورت نیاز می‌توان تنظیمات خاصی برای اندازه‌های مختلف اضافه کرد
+        });
+    </script>
+</body>
+</html>
