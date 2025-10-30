@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* استایل‌های اصلی (همان کد قبلی) */
         :root {
             --primary: #4361ee;
             --primary-light: #4895ef;
@@ -119,6 +120,14 @@
             justify-content: center;
             font-weight: bold;
             box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .realtime-status {
@@ -1210,9 +1219,254 @@
                 width: 100%;
             }
         }
+        
+        /* ================= استایل‌های جدید برای ویژگی‌های اضافه شده ================= */
+        
+        /* منوی موبایل */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 80%;
+            height: 100%;
+            background: var(--card-bg);
+            z-index: 1000;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+        
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .mobile-nav-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mobile-nav-item:hover {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+        
+        .mobile-nav-item.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .user-info {
+                display: none;
+            }
+        }
+        
+        /* سیستم اطلاع‌رسانی پیشرفته */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notifications-modal .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .notifications-modal .notification-item:hover {
+            background: #f8fafc;
+        }
+        
+        .notifications-modal .notification-item.unread {
+            background: rgba(67, 97, 238, 0.05);
+            border-right: 3px solid var(--primary);
+        }
+        
+        .notifications-modal .notification-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        /* مدیریت پروفایل */
+        .profile-picture-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-picture-upload {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .profile-picture-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+        
+        .profile-picture-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* بهبود رمز عبور */
+        .password-strength {
+            margin-top: 8px;
+        }
+        
+        .password-strength-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .password-strength-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        /* بخش‌بندی فرم ثبت‌نام */
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .form-section-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* گریدهای واکنش‌گرا */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        /* استایل‌های مخصوص موبایل */
+        .mobile-only {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: block;
+            }
+            
+            .desktop-only {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- منوی موبایل -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3>منو</h3>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="mobile-nav" id="mobileNav">
+            <!-- محتوای منوی موبایل توسط جاوااسکریپت پر می‌شود -->
+        </div>
+    </div>
+
     <header>
         <div class="container">
             <div class="header-content">
@@ -1220,7 +1474,14 @@
                     <i class="ti ti-building-store"></i>
                     سیستم مدیریت جامع تجارت - Real-Time
                 </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="ti ti-menu-2"></i>
+                </button>
                 <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="ti ti-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
                     <div id="userName"></div>
                     <div class="user-avatar" id="userAvatar"></div>
                     <div class="realtime-status" id="realtimeStatus">
@@ -1326,70 +1587,97 @@
                 </div>
                 
                 <form id="registerForm">
-                    <div class="form-group">
-                        <label for="storeName">نام تجارت:</label>
-                        <input type="text" id="storeName" required placeholder="نام تجارت خود را وارد کنید">
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="ti ti-info-circle"></i>
+                            اطلاعات پایه
+                        </div>
+                        <div class="form-group">
+                            <label for="storeName">نام تجارت:</label>
+                            <input type="text" id="storeName" required placeholder="نام تجارت خود را وارد کنید">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>نوع تجارت:</label>
+                            <div class="business-type-grid">
+                                <div class="business-type-card" data-type="retail">
+                                    <div class="business-icon">
+                                        <i class="ti ti-shopping-cart"></i>
+                                    </div>
+                                    <div>فروشگاه خرده فروشی</div>
+                                </div>
+                                <div class="business-type-card" data-type="wholesale">
+                                    <div class="business-icon">
+                                        <i class="ti ti-package"></i>
+                                    </div>
+                                    <div>فروشگاه عمدهفروشی</div>
+                                </div>
+                                <div class="business-type-card" data-type="exchange">
+                                    <div class="business-icon">
+                                        <i class="ti ti-currency-dollar"></i>
+                                    </div>
+                                    <div>صرافی ارز</div>
+                                </div>
+                                <div class="business-type-card" data-type="restaurant">
+                                    <div class="business-icon">
+                                        <i class="ti ti-tools-kitchen"></i>
+                                    </div>
+                                    <div>رستوران و کافه</div>
+                                </div>
+                                <div class="business-type-card" data-type="service">
+                                    <div class="business-icon">
+                                        <i class="ti ti-briefcase"></i>
+                                    </div>
+                                    <div>خدمات</div>
+                                </div>
+                                <div class="business-type-card" data-type="other">
+                                    <div class="business-icon">
+                                        <i class="ti ti-building-store"></i>
+                                    </div>
+                                    <div>سایر</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="businessType" required>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>نوع تجارت:</label>
-                        <div class="business-type-grid">
-                            <div class="business-type-card" data-type="retail">
-                                <div class="business-icon">
-                                    <i class="ti ti-shopping-cart"></i>
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="ti ti-user"></i>
+                            اطلاعات مالک
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerName">نام صاحب تجارت:</label>
+                            <input type="text" id="ownerName" required placeholder="نام کامل خود را وارد کنید">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">ایمیل:</label>
+                            <input type="email" id="registerEmail" required placeholder="ایمیل معتبر وارد کنید">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="ti ti-lock"></i>
+                            امنیت حساب
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">رمز عبور:</label>
+                            <input type="password" id="registerPassword" required placeholder="رمز عبور قوی انتخاب کنید">
+                            <div class="password-strength">
+                                <div class="password-strength-bar">
+                                    <div class="progress-fill" id="passwordStrengthBar" style="width: 0%"></div>
                                 </div>
-                                <div>فروشگاه خرده فروشی</div>
-                            </div>
-                            <div class="business-type-card" data-type="wholesale">
-                                <div class="business-icon">
-                                    <i class="ti ti-package"></i>
-                                </div>
-                                <div>فروشگاه عمدهفروشی</div>
-                            </div>
-                            <div class="business-type-card" data-type="exchange">
-                                <div class="business-icon">
-                                    <i class="ti ti-currency-dollar"></i>
-                                </div>
-                                <div>صرافی ارز</div>
-                            </div>
-                            <div class="business-type-card" data-type="restaurant">
-                                <div class="business-icon">
-                                    <i class="ti ti-tools-kitchen"></i>
-                                </div>
-                                <div>رستوران و کافه</div>
-                            </div>
-                            <div class="business-type-card" data-type="service">
-                                <div class="business-icon">
-                                    <i class="ti ti-briefcase"></i>
-                                </div>
-                                <div>خدمات</div>
-                            </div>
-                            <div class="business-type-card" data-type="other">
-                                <div class="business-icon">
-                                    <i class="ti ti-building-store"></i>
-                                </div>
-                                <div>سایر</div>
+                                <div class="password-strength-text" id="passwordStrengthText">قدرت رمز عبور: ضعیف</div>
                             </div>
                         </div>
-                        <input type="hidden" id="businessType" required>
+                        <div class="form-group">
+                            <label for="confirmPassword">تکرار رمز عبور:</label>
+                            <input type="password" id="confirmPassword" required placeholder="رمز عبور را تکرار کنید">
+                            <div id="passwordMatch" style="margin-top: 5px; font-size: 0.8rem;"></div>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="ownerName">نام صاحب تجارت:</label>
-                        <input type="text" id="ownerName" required placeholder="نام کامل خود را وارد کنید">
-                    </div>
-                    <div class="form-group">
-                        <label for="registerEmail">ایمیل:</label>
-                        <input type="email" id="registerEmail" required placeholder="ایمیل معتبر وارد کنید">
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPassword">رمز عبور:</label>
-                        <input type="password" id="registerPassword" required placeholder="رمز عبور قوی انتخاب کنید">
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">تکرار رمز عبور:</label>
-                        <input type="password" id="confirmPassword" required placeholder="رمز عبور را تکرار کنید">
-                    </div>
                     <button type="submit" class="btn-primary" style="width: 100%;">
                         <i class="ti ti-user-plus"></i>
                         ثبت نام
@@ -1837,6 +2125,22 @@
                             <h3 class="card-title">اطلاعات حساب کاربری</h3>
                         </div>
                         <div style="padding: 20px;">
+                            <div class="profile-picture-container">
+                                <div class="profile-picture" id="profilePicture">
+                                    <!-- تصویر پروفایل اینجا نمایش داده می‌شود -->
+                                </div>
+                                <div class="profile-picture-upload">
+                                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn-info" id="uploadProfilePictureBtn">
+                                        <i class="ti ti-upload"></i>
+                                        آپلود تصویر
+                                    </button>
+                                    <div class="profile-picture-preview" id="profilePicturePreview" style="display: none;">
+                                        <!-- پیش‌نمایش تصویر اینجا نمایش داده می‌شود -->
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <form id="profileForm">
                                 <div class="form-group">
                                     <label for="profileStoreName">نام تجارت:</label>
@@ -2078,6 +2382,19 @@
         </div>
     </div>
 
+    <!-- مودال اطلاعیه‌ها -->
+    <div id="notificationsModal" class="modal notifications-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>اطلاعیه‌ها</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div id="notificationsList">
+                <!-- لیست اطلاعیه‌ها اینجا نمایش داده می‌شود -->
+            </div>
+        </div>
+    </div>
+
     <!-- ناحیه چاپ -->
     <div id="printArea" class="print-area"></div>
 
@@ -2119,6 +2436,8 @@
                     'other': 'سایر'
                 },
                 currencies: ['USD', 'EUR', 'GBP', 'AED', 'PKR', 'IRR'],
+                notifications: [],
+                unreadNotifications: 0,
                 
                 async init() {
                     try {
@@ -2138,6 +2457,8 @@
                         this.setupEventListeners();
                         this.handlePageReload();
                         this.showAppropriatePage();
+                        this.setupMobileMenu();
+                        this.setupPasswordStrength();
                     } catch (error) {
                         console.error('خطا در مقداردهی اولیه سیستم:', error);
                         this.showNotification('خطا در راهاندازی سیستم', 'error');
@@ -2195,6 +2516,9 @@
                         // تفکیک کاربران تأیید شده و در انتظار تأیید
                         this.users = users.filter(user => user.approved) || [];
                         this.pendingApprovals = users.filter(user => !user.approved) || [];
+                        
+                        // بارگذاری اطلاعیه‌ها
+                        this.loadNotifications();
                         
                         // ایجاد کاربر پیشفرض اگر هیچ کاربری وجود ندارد
                         if (this.users.length === 0 && this.pendingApprovals.length === 0) {
@@ -2566,7 +2890,332 @@
                     document.getElementById('googleSignInBtn').addEventListener('click', () => {
                         this.initiateGoogleSignIn();
                     });
+                    
+                    // مدیریت اطلاعیه‌ها
+                    document.getElementById('notificationBell').addEventListener('click', () => {
+                        this.openNotificationsModal();
+                    });
+                    
+                    // مدیریت آپلود تصویر پروفایل
+                    document.getElementById('uploadProfilePictureBtn').addEventListener('click', () => {
+                        document.getElementById('profilePictureInput').click();
+                    });
+                    
+                    document.getElementById('profilePictureInput').addEventListener('change', (e) => {
+                        this.handleProfilePictureUpload(e);
+                    });
                 },
+                
+                // ================= سیستم اطلاع‌رسانی پیشرفته =================
+                loadNotifications() {
+                    // بارگذاری اطلاعیه‌ها از localStorage
+                    const savedNotifications = localStorage.getItem('notifications');
+                    if (savedNotifications) {
+                        this.notifications = JSON.parse(savedNotifications);
+                    } else {
+                        // اطلاعیه‌های پیشفرض
+                        this.notifications = [
+                            {
+                                id: 1,
+                                title: 'خوش آمدید',
+                                message: 'به سیستم مدیریت جامع تجارت خوش آمدید',
+                                type: 'info',
+                                timestamp: new Date().toISOString(),
+                                read: false
+                            },
+                            {
+                                id: 2,
+                                title: 'بررسی امنیتی',
+                                message: 'لطفاً رمز عبور خود را به‌روزرسانی کنید',
+                                type: 'warning',
+                                timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 روز پیش
+                                read: false
+                            }
+                        ];
+                    }
+                    
+                    this.updateNotificationBadge();
+                },
+                
+                saveNotifications() {
+                    localStorage.setItem('notifications', JSON.stringify(this.notifications));
+                    this.updateNotificationBadge();
+                },
+                
+                addNotification(title, message, type = 'info') {
+                    const newNotification = {
+                        id: Date.now(),
+                        title,
+                        message,
+                        type,
+                        timestamp: new Date().toISOString(),
+                        read: false
+                    };
+                    
+                    this.notifications.unshift(newNotification);
+                    this.saveNotifications();
+                    
+                    // نمایش نوتیفیکیشن لحظه‌ای
+                    this.showNotification(message, type);
+                },
+                
+                updateNotificationBadge() {
+                    const badge = document.getElementById('notificationBadge');
+                    this.unreadNotifications = this.notifications.filter(n => !n.read).length;
+                    
+                    if (badge) {
+                        if (this.unreadNotifications > 0) {
+                            badge.textContent = this.unreadNotifications > 99 ? '99+' : this.unreadNotifications;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                },
+                
+                openNotificationsModal() {
+                    const modal = document.getElementById('notificationsModal');
+                    const list = document.getElementById('notificationsList');
+                    
+                    list.innerHTML = '';
+                    
+                    if (this.notifications.length === 0) {
+                        list.innerHTML = '<div class="empty-state"><i class="ti ti-bell"></i><p>هیچ اطلاعیه‌ای وجود ندارد</p></div>';
+                    } else {
+                        this.notifications.forEach(notification => {
+                            const notificationItem = document.createElement('div');
+                            notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                            notificationItem.innerHTML = `
+                                <div>
+                                    <strong>${notification.title}</strong>
+                                    <p>${notification.message}</p>
+                                    <div class="notification-time">${new Date(notification.timestamp).toLocaleDateString('fa-IR')}</div>
+                                </div>
+                            `;
+                            
+                            notificationItem.addEventListener('click', () => {
+                                this.markNotificationAsRead(notification.id);
+                                notificationItem.classList.remove('unread');
+                            });
+                            
+                            list.appendChild(notificationItem);
+                        });
+                    }
+                    
+                    modal.style.display = 'flex';
+                },
+                
+                markNotificationAsRead(notificationId) {
+                    const notification = this.notifications.find(n => n.id === notificationId);
+                    if (notification && !notification.read) {
+                        notification.read = true;
+                        this.saveNotifications();
+                    }
+                },
+                
+                markAllNotificationsAsRead() {
+                    this.notifications.forEach(notification => {
+                        notification.read = true;
+                    });
+                    this.saveNotifications();
+                },
+                
+                // ================= مدیریت پروفایل کامل =================
+                handleProfilePictureUpload(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    // بررسی نوع فایل
+                    if (!file.type.startsWith('image/')) {
+                        this.showNotification('لطفاً یک فایل تصویر انتخاب کنید', 'error');
+                        return;
+                    }
+                    
+                    // بررسی حجم فایل (حداکثر 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.showNotification('حجم فایل نباید بیشتر از 2 مگابایت باشد', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const imageData = event.target.result;
+                        
+                        // نمایش پیش‌نمایش
+                        const preview = document.getElementById('profilePicturePreview');
+                        preview.innerHTML = `<img src="${imageData}" alt="پیش‌نمایش">`;
+                        preview.style.display = 'block';
+                        
+                        // ذخیره تصویر در پروفایل کاربر
+                        if (this.currentUser) {
+                            this.currentUser.profilePicture = imageData;
+                            this.saveUserToCloud(this.currentUser);
+                            this.updateProfilePicture();
+                            this.showNotification('تصویر پروفایل با موفقیت آپلود شد', 'success');
+                        }
+                    };
+                    
+                    reader.readAsDataURL(file);
+                },
+                
+                updateProfilePicture() {
+                    const profilePicture = document.getElementById('profilePicture');
+                    const userAvatar = document.getElementById('userAvatar');
+                    
+                    if (this.currentUser && this.currentUser.profilePicture) {
+                        profilePicture.innerHTML = `<img src="${this.currentUser.profilePicture}" alt="تصویر پروفایل">`;
+                        userAvatar.innerHTML = `<img src="${this.currentUser.profilePicture}" alt="تصویر پروفایل">`;
+                    } else {
+                        const initial = this.currentUser ? this.currentUser.store_name.charAt(0) : '?';
+                        profilePicture.textContent = initial;
+                        userAvatar.textContent = initial;
+                    }
+                },
+                
+                // ================= منوی موبایل =================
+                setupMobileMenu() {
+                    const menuBtn = document.getElementById('mobileMenuBtn');
+                    const menuClose = document.getElementById('mobileMenuClose');
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    
+                    menuBtn.addEventListener('click', () => {
+                        mobileMenu.classList.add('active');
+                        this.renderMobileMenu();
+                    });
+                    
+                    menuClose.addEventListener('click', () => {
+                        mobileMenu.classList.remove('active');
+                    });
+                },
+                
+                renderMobileMenu() {
+                    const mobileNav = document.getElementById('mobileNav');
+                    mobileNav.innerHTML = '';
+                    
+                    if (this.currentUser) {
+                        // منوی کاربران عادی
+                        const userMenuItems = [
+                            { icon: 'ti ti-package', text: 'محصولات', action: () => this.switchUserTab('products') },
+                            { icon: 'ti ti-category', text: 'دسته‌بندی‌ها', action: () => this.switchUserTab('categories') },
+                            { icon: 'ti ti-shopping-cart', text: 'فروش‌ها', action: () => this.switchUserTab('sales') },
+                            { icon: 'ti ti-currency-dollar', text: 'صرافی', action: () => this.switchUserTab('exchange') },
+                            { icon: 'ti ti-settings', text: 'تنظیمات', action: () => this.switchUserTab('settings') },
+                            { icon: 'ti ti-user', text: 'پروفایل', action: () => this.switchUserTab('profile') },
+                            { icon: 'ti ti-logout', text: 'خروج', action: () => this.logout() }
+                        ];
+                        
+                        userMenuItems.forEach(item => {
+                            const menuItem = document.createElement('div');
+                            menuItem.className = 'mobile-nav-item';
+                            menuItem.innerHTML = `
+                                <i class="${item.icon}"></i>
+                                <span>${item.text}</span>
+                            `;
+                            menuItem.addEventListener('click', () => {
+                                item.action();
+                                document.getElementById('mobileMenu').classList.remove('active');
+                            });
+                            mobileNav.appendChild(menuItem);
+                        });
+                    } else {
+                        // منوی ورود
+                        const loginMenuItems = [
+                            { icon: 'ti ti-login', text: 'ورود تجارت', action: () => this.switchLoginTab('user') },
+                            { icon: 'ti ti-user-plus', text: 'ثبت نام', action: () => this.showRegisterPage() }
+                        ];
+                        
+                        loginMenuItems.forEach(item => {
+                            const menuItem = document.createElement('div');
+                            menuItem.className = 'mobile-nav-item';
+                            menuItem.innerHTML = `
+                                <i class="${item.icon}"></i>
+                                <span>${item.text}</span>
+                            `;
+                            menuItem.addEventListener('click', () => {
+                                item.action();
+                                document.getElementById('mobileMenu').classList.remove('active');
+                            });
+                            mobileNav.appendChild(menuItem);
+                        });
+                    }
+                },
+                
+                // ================= بهبود رمز عبور =================
+                setupPasswordStrength() {
+                    const passwordInput = document.getElementById('registerPassword');
+                    const confirmInput = document.getElementById('confirmPassword');
+                    
+                    if (passwordInput) {
+                        passwordInput.addEventListener('input', () => {
+                            this.checkPasswordStrength(passwordInput.value);
+                        });
+                    }
+                    
+                    if (confirmInput) {
+                        confirmInput.addEventListener('input', () => {
+                            this.checkPasswordMatch();
+                        });
+                    }
+                },
+                
+                checkPasswordStrength(password) {
+                    let strength = 0;
+                    const bar = document.getElementById('passwordStrengthBar');
+                    const text = document.getElementById('passwordStrengthText');
+                    
+                    if (!bar || !text) return;
+                    
+                    // بررسی طول رمز عبور
+                    if (password.length >= 8) strength += 25;
+                    
+                    // بررسی وجود حروف بزرگ و کوچک
+                    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+                    
+                    // بررسی وجود اعداد
+                    if (/\d/.test(password)) strength += 25;
+                    
+                    // بررسی وجود کاراکترهای خاص
+                    if (/[^a-zA-Z\d]/.test(password)) strength += 25;
+                    
+                    // به‌روزرسانی نوار و متن
+                    bar.style.width = `${strength}%`;
+                    
+                    if (strength < 50) {
+                        bar.style.background = 'var(--error)';
+                        text.textContent = 'قدرت رمز عبور: ضعیف';
+                        text.style.color = 'var(--error)';
+                    } else if (strength < 75) {
+                        bar.style.background = 'var(--warning)';
+                        text.textContent = 'قدرت رمز عبور: متوسط';
+                        text.style.color = 'var(--warning)';
+                    } else {
+                        bar.style.background = 'var(--success)';
+                        text.textContent = 'قدرت رمز عبور: قوی';
+                        text.style.color = 'var(--success)';
+                    }
+                },
+                
+                checkPasswordMatch() {
+                    const password = document.getElementById('registerPassword').value;
+                    const confirm = document.getElementById('confirmPassword').value;
+                    const matchDiv = document.getElementById('passwordMatch');
+                    
+                    if (!matchDiv) return;
+                    
+                    if (confirm === '') {
+                        matchDiv.textContent = '';
+                        matchDiv.style.color = '';
+                    } else if (password === confirm) {
+                        matchDiv.textContent = '✓ رمز عبور مطابقت دارد';
+                        matchDiv.style.color = 'var(--success)';
+                    } else {
+                        matchDiv.textContent = '✗ رمز عبور مطابقت ندارد';
+                        matchDiv.style.color = 'var(--error)';
+                    }
+                },
+                
+                // توابع باقی مانده (همان کد قبلی)...
+                // ... [بقیه توابع بدون تغییر]
                 
                 switchLoginTab(tab) {
                     const userTab = document.getElementById('userLoginTab');
@@ -2667,6 +3316,7 @@
                             this.isAdmin = false;
                             this.showAppropriatePage();
                             this.showNotification('ورود موفقیتآمیز', 'success');
+                            this.addNotification('ورود موفق', `شما با موفقیت به سیستم وارد شدید.`, 'success');
                         } else {
                             this.showNotification('ایمیل یا رمز عبور اشتباه است', 'error');
                         }
@@ -2686,6 +3336,7 @@
                         this.isAdmin = true;
                         this.showAppropriatePage();
                         this.showNotification('ورود مدیر موفقیتآمیز', 'success');
+                        this.addNotification('ورود مدیر', `مدیر سیستم با موفقیت وارد شد.`, 'success');
                     } else {
                         this.showNotification('ایمیل یا رمز عبور مدیر اشتباه است', 'error');
                     }
@@ -2708,6 +3359,12 @@
                     // بررسی تطابق رمز عبور
                     if (password !== confirmPassword) {
                         this.showNotification('رمز عبور و تکرار آن مطابقت ندارند', 'error');
+                        return;
+                    }
+                    
+                    // بررسی قدرت رمز عبور
+                    if (password.length < 6) {
+                        this.showNotification('رمز عبور باید حداقل 6 کاراکتر باشد', 'error');
                         return;
                     }
                     
@@ -2765,6 +3422,8 @@
                                 `تاریخ: ${new Date().toLocaleDateString('fa-IR')}\n\n` +
                                 `لطفا به پنل مدیریت مراجعه کنید.`
                             );
+                            
+                            this.addNotification('ثبت نام جدید', `تجارت ${storeName} درخواست ثبت نام داده است.`, 'info');
                         }
                     } catch (error) {
                         console.error('خطا در ثبت نام:', error);
@@ -2936,7 +3595,7 @@
                     // بهروزرسانی اطلاعات کاربر
                     document.getElementById('userStoreName').textContent = this.currentUser.store_name;
                     document.getElementById('userName').textContent = this.currentUser.store_name;
-                    document.getElementById('userAvatar').textContent = this.currentUser.store_name.charAt(0);
+                    this.updateProfilePicture();
                     document.getElementById('userBusinessType').textContent = this.businessTypes[this.currentUser.business_type] || 'نامشخص';
                     
                     // نمایش وضعیت تأیید کاربر
