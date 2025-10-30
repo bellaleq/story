@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم مدیریت جامع فروشگاهها و صرافیها</title>
+    <title>سیستم مدیریت جامع فروشگاه ها و صرافی ها - Real-Time</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -116,6 +116,23 @@
             justify-content: center;
             font-weight: bold;
             box-shadow: var(--shadow);
+        }
+        
+        .realtime-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            background: rgba(75, 181, 67, 0.1);
+            color: var(--success);
+        }
+        
+        .realtime-status.offline {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--error);
         }
         
         /* استایل فرمها */
@@ -965,6 +982,34 @@
             transform: translateY(-2px);
             box-shadow: var(--shadow);
         }
+        
+        /* استایل Real-Time */
+        .realtime-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-left: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        .realtime-indicator.offline {
+            background: var(--error);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .realtime-update {
+            background: rgba(67, 97, 238, 0.05);
+            border-left: 3px solid var(--primary);
+            transition: all 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -973,11 +1018,15 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="ti ti-building-store"></i>
-                    سیستم مدیریت جامع تجارت
+                    سیستم مدیریت جامع تجارت - Real-Time
                 </div>
                 <div class="user-info" id="userInfo" style="display: none;">
                     <div id="userName"></div>
                     <div class="user-avatar" id="userAvatar"></div>
+                    <div class="realtime-status" id="realtimeStatus">
+                        <i class="ti ti-circle" style="font-size: 0.6rem;"></i>
+                        <span>Real-Time</span>
+                    </div>
                     <button id="userProfile" class="btn-info">
                         <i class="ti ti-user"></i>
                         پروفایل
@@ -1001,7 +1050,7 @@
             <div class="auth-container">
                 <div class="auth-header">
                     <h2>ورود به سیستم</h2>
-                    <p>سیستم مدیریت جامع فروشگاهها و صرافیها</p>
+                    <p>سیستم مدیریت جامع فروشگاه ها و صرافی ها - Real-Time</p>
                 </div>
                 
                 <div class="tabs">
@@ -1073,7 +1122,7 @@
             <div class="auth-container">
                 <div class="auth-header">
                     <h2>ثبت نام تجارت جدید</h2>
-                    <p>فرم ثبت نام انواع فروشگاهها و صرافیها</p>
+                    <p>فرم ثبت نام انواع فروشگاه ها و صرافی ها</p>
                 </div>
                 
                 <form id="registerForm">
@@ -1089,7 +1138,7 @@
                                 <div class="business-icon">
                                     <i class="ti ti-shopping-cart"></i>
                                 </div>
-                                <div>فروشگاه خردهفروشی</div>
+                                <div>فروشگاه خرده فروشی</div>
                             </div>
                             <div class="business-type-card" data-type="wholesale">
                                 <div class="business-icon">
@@ -1253,7 +1302,7 @@
                             <i class="ti ti-category"></i>
                         </div>
                         <div class="stat-number" id="totalCategories">0</div>
-                        <div>دستهبندیها</div>
+                        <div>دسته بندی ها</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">
@@ -1273,8 +1322,8 @@
                 
                 <div class="tabs">
                     <div class="tab active" data-tab="products">محصولات</div>
-                    <div class="tab" data-tab="categories">دستهبندیها</div>
-                    <div class="tab" data-tab="sales">فروشها</div>
+                    <div class="tab" data-tab="categories">دسته بندی ها</div>
+                    <div class="tab" data-tab="sales">فروش ها</div>
                     <div class="tab" data-tab="exchange" id="exchangeTab" style="display: none;">صرافی</div>
                     <div class="tab" data-tab="settings">تنظیمات</div>
                     <div class="tab" data-tab="profile">پروفایل</div>
@@ -1284,7 +1333,7 @@
                 <div id="userProductsTab" class="user-tab">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">لیست محصولات</h3>
+                            <h3 class="card-title">لیست محصولات <span class="realtime-indicator"></span></h3>
                             <div>
                                 <button id="exportProducts" class="btn-info">
                                     <i class="ti ti-download"></i>
@@ -1348,11 +1397,11 @@
                     </div>
                 </div>
                 
-                <!-- تب دستهبندیها -->
+                <!-- تب دسته بندی ها -->
                 <div id="userCategoriesTab" class="user-tab hidden">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">لیست دستهبندیها</h3>
+                            <h3 class="card-title">لیست دسته بندی ها <span class="realtime-indicator"></span></h3>
                         </div>
                         <div class="table-container">
                             <table>
@@ -1364,7 +1413,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="categoriesTableBody">
-                                    <!-- دستهبندیها اینجا نمایش داده میشوند -->
+                                    <!-- دسته بندی ها اینجا نمایش داده میشوند -->
                                 </tbody>
                             </table>
                         </div>
@@ -1387,14 +1436,14 @@
                     </div>
                 </div>
                 
-                <!-- تب فروشها -->
+                <!-- تب فروش ها -->
                 <div id="userSalesTab" class="user-tab hidden">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">فروشهای امروز</h3>
+                            <h3 class="card-title">فروش های امروز <span class="realtime-indicator"></span></h3>
                         </div>
                         <div id="soldItemsList" style="padding: 20px;">
-                            <!-- فروشهای امروز اینجا نمایش داده میشوند -->
+                            <!-- فروش های امروز اینجا نمایش داده میشوند -->
                         </div>
                     </div>
                     
@@ -1418,7 +1467,7 @@
                 <div id="userExchangeTab" class="user-tab hidden">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">مدیریت نرخ ارز</h3>
+                            <h3 class="card-title">مدیریت نرخ ارز <span class="realtime-indicator"></span></h3>
                         </div>
                         <div style="padding: 20px;">
                             <div class="form-group">
@@ -1627,7 +1676,7 @@
         <!-- داشبورد مدیر -->
         <div id="adminDashboard" class="page hidden">
             <div class="user-info-bar">
-                <h2>پنل مدیریت سیستم</h2>
+                <h2>پنل مدیریت سیستم - Real-Time</h2>
                 <div class="user-actions">
                     <button id="backupAllData" class="btn-info">
                         <i class="ti ti-download"></i>
@@ -1660,43 +1709,43 @@
                         <i class="ti ti-shopping-cart"></i>
                     </div>
                     <div class="stat-number" id="adminTotalSales">0</div>
-                    <div>فروشها</div>
+                    <div>فروش ها</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
                         <i class="ti ti-user-plus"></i>
                     </div>
                     <div class="stat-number" id="adminNewStores">0</div>
-                    <div>تجارتهای جدید</div>
+                    <div>تجارت های جدید</div>
                 </div>
             </div>
             
             <div class="tabs">
-                <div class="tab active" data-tab="stores">مدیریت تجارتها</div>
-                <div class="tab" data-tab="approvals">درخواستهای تأیید</div>
+                <div class="tab active" data-tab="stores">مدیریت تجارت ها</div>
+                <div class="tab" data-tab="approvals">درخواست های تأیید</div>
                 <div class="tab" data-tab="credentials">اطلاعات کاربران</div>
                 <div class="tab" data-tab="system">تنظیمات سیستم</div>
             </div>
             
-            <!-- تب مدیریت تجارتها -->
+            <!-- تب مدیریت تجارت ها -->
             <div id="adminStoresTab" class="admin-tab">
                 <div id="storesList">
-                    <!-- لیست تجارتها اینجا نمایش داده میشوند -->
+                    <!-- لیست تجارت ها اینجا نمایش داده میشوند -->
                 </div>
             </div>
             
-            <!-- تب درخواستهای تأیید -->
+            <!-- تب درخواست های تأیید -->
             <div id="adminApprovalsTab" class="admin-tab hidden">
-                <h3 style="margin-bottom: 20px;">درخواستهای در انتظار تأیید</h3>
+                <h3 style="margin-bottom: 20px;">درخواست های در انتظار تأیید <span class="realtime-indicator"></span></h3>
                 
                 <div id="approvalList">
-                    <!-- درخواستهای تأیید اینجا نمایش داده میشوند -->
+                    <!-- درخواست های تأیید اینجا نمایش داده میشوند -->
                 </div>
             </div>
             
             <!-- تب اطلاعات کاربران -->
             <div id="adminCredentialsTab" class="admin-tab hidden">
-                <h3 style="margin-bottom: 20px;">اطلاعات کاربران سیستم</h3>
+                <h3 style="margin-bottom: 20px;">اطلاعات کاربران سیستم <span class="realtime-indicator"></span></h3>
                 
                 <div class="table-container">
                     <table>
@@ -1801,7 +1850,7 @@
                 <div class="form-group">
                     <label for="newBusinessType">نوع تجارت:</label>
                     <select id="newBusinessType" required>
-                        <option value="retail">فروشگاه خردهفروشی</option>
+                        <option value="retail">فروشگاه خرده فروشی</option>
                         <option value="wholesale">فروشگاه عمدهفروشی</option>
                         <option value="exchange">صرافی ارز</option>
                         <option value="restaurant">رستوران و کافه</option>
@@ -1832,10 +1881,8 @@
     <!-- ناحیه چاپ -->
     <div id="printArea" class="print-area"></div>
 
-    <!-- بارگذاری Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // سیستم مدیریت جامع فروشگاهها و صرافیها - نسخه کامل
+        // سیستم مدیریت جامع فروشگاه ها و صرافی ها - نسخه کامل Real-Time
         (function() {
             'use strict';
             
@@ -1862,8 +1909,9 @@
                 pendingApprovals: [],
                 adminCredentials: { email: 'admin@example.com', password: 'admin123' },
                 supabase: null,
+                realtimeSubscription: null,
                 businessTypes: {
-                    'retail': 'فروشگاه خردهفروشی',
+                    'retail': 'فروشگاه خرده فروشی',
                     'wholesale': 'فروشگاه عمدهفروشی',
                     'exchange': 'صرافی ارز',
                     'restaurant': 'رستوران و کافه',
@@ -1886,6 +1934,7 @@
                         }
                         
                         await this.loadFromCloud();
+                        this.setupRealtimeSubscription();
                         this.setupEventListeners();
                         this.showAppropriatePage();
                     } catch (error) {
@@ -1918,6 +1967,163 @@
                         throw error;
                     }
                 },
+                
+                // ================= REAL-TIME SETUP =================
+                setupRealtimeSubscription() {
+                    // ایجاد اشتراک Real-Time برای جدول businesses
+                    this.realtimeSubscription = this.supabase
+                        .channel('businesses-realtime')
+                        .on('postgres_changes', 
+                            { 
+                                event: '*', // تمام رویدادها (INSERT, UPDATE, DELETE)
+                                schema: 'public', 
+                                table: 'businesses' 
+                            }, 
+                            (payload) => {
+                                console.log('تغییر Real-Time دریافت شد:', payload);
+                                this.handleRealtimeChange(payload);
+                            }
+                        )
+                        .subscribe((status) => {
+                            if (status === 'SUBSCRIBED') {
+                                console.log('اشتراک Real-Time فعال شد');
+                                this.updateRealtimeStatus(true);
+                            } else if (status === 'CHANNEL_ERROR') {
+                                console.error('خطا در اشتراک Real-Time');
+                                this.updateRealtimeStatus(false);
+                                this.showNotification('اتصال Real-Time قطع شد', 'error');
+                            }
+                        });
+                },
+                
+                handleRealtimeChange(payload) {
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+                    
+                    switch (eventType) {
+                        case 'INSERT':
+                            this.handleNewRecord(newRecord);
+                            break;
+                            
+                        case 'UPDATE':
+                            this.handleUpdatedRecord(newRecord, oldRecord);
+                            break;
+                            
+                        case 'DELETE':
+                            this.handleDeletedRecord(oldRecord);
+                            break;
+                    }
+                    
+                    // نمایش نوتیفیکیشن Real-Time
+                    this.showRealtimeNotification(eventType, newRecord || oldRecord);
+                },
+                
+                handleNewRecord(record) {
+                    if (record.approved) {
+                        this.users.push(record);
+                    } else {
+                        this.pendingApprovals.push(record);
+                    }
+                    
+                    // به‌روزرسانی خودکار داشبوردها
+                    this.updateAllDisplays();
+                },
+                
+                handleUpdatedRecord(newRecord, oldRecord) {
+                    if (newRecord.approved) {
+                        // اگر کاربر تأیید شده
+                        const userIndex = this.users.findIndex(u => u.id === newRecord.id);
+                        if (userIndex !== -1) {
+                            this.users[userIndex] = newRecord;
+                        } else {
+                            this.users.push(newRecord);
+                            // حذف از لیست انتظار اگر وجود داشت
+                            this.pendingApprovals = this.pendingApprovals.filter(u => u.id !== newRecord.id);
+                        }
+                    } else {
+                        // اگر کاربر در انتظار تأیید است
+                        const pendingIndex = this.pendingApprovals.findIndex(u => u.id === newRecord.id);
+                        if (pendingIndex !== -1) {
+                            this.pendingApprovals[pendingIndex] = newRecord;
+                        }
+                    }
+                    
+                    // اگر کاربر جاری به‌روزرسانی شده
+                    if (this.currentUser && this.currentUser.id === newRecord.id) {
+                        this.currentUser = newRecord;
+                        this.renderUserDashboard();
+                    }
+                    
+                    // به‌روزرسانی خودکار داشبوردها
+                    this.updateAllDisplays();
+                },
+                
+                handleDeletedRecord(record) {
+                    // حذف رکورد از لیست‌ها
+                    this.users = this.users.filter(u => u.id !== record.id);
+                    this.pendingApprovals = this.pendingApprovals.filter(u => u.id !== record.id);
+                    
+                    // اگر کاربر جاری حذف شده
+                    if (this.currentUser && this.currentUser.id === record.id) {
+                        this.currentUser = null;
+                        this.isAdmin = false;
+                        this.showAppropriatePage();
+                        this.showNotification('حساب شما حذف شده است', 'error');
+                    }
+                    
+                    // به‌روزرسانی خودکار داشبوردها
+                    this.updateAllDisplays();
+                },
+                
+                updateAllDisplays() {
+                    // به‌روزرسانی خودکار تمام نمایش‌ها
+                    if (this.isAdmin) {
+                        this.renderAdminDashboard();
+                    } else if (this.currentUser) {
+                        this.renderUserDashboard();
+                    }
+                },
+                
+                showRealtimeNotification(eventType, record) {
+                    let message = '';
+                    let type = 'info';
+                    
+                    switch (eventType) {
+                        case 'INSERT':
+                            message = `تجارت جدید "${record.store_name}" ثبت شد`;
+                            type = 'success';
+                            break;
+                        case 'UPDATE':
+                            message = `تجارت "${record.store_name}" به‌روزرسانی شد`;
+                            type = 'info';
+                            break;
+                        case 'DELETE':
+                            message = `تجارت "${record.store_name}" حذف شد`;
+                            type = 'error';
+                            break;
+                    }
+                    
+                    this.showNotification(message, type);
+                },
+                
+                updateRealtimeStatus(connected = true) {
+                    const statusElement = document.getElementById('realtimeStatus');
+                    if (statusElement) {
+                        if (connected) {
+                            statusElement.innerHTML = `
+                                <i class="ti ti-circle" style="color: var(--success); font-size: 0.6rem;"></i>
+                                <span>Real-Time</span>
+                            `;
+                            statusElement.className = 'realtime-status';
+                        } else {
+                            statusElement.innerHTML = `
+                                <i class="ti ti-circle" style="color: var(--error); font-size: 0.6rem;"></i>
+                                <span>Offline</span>
+                            `;
+                            statusElement.className = 'realtime-status offline';
+                        }
+                    }
+                },
+                // ================= END REAL-TIME SETUP =================
                 
                 async createDefaultUser() {
                     const defaultUser = {
@@ -1969,6 +2175,8 @@
                 
                 async saveUserToCloud(user) {
                     try {
+                        let result;
+                        
                         if (!user.id) {
                             // کاربر جدید - درج
                             const { data, error } = await this.supabase
@@ -1979,19 +2187,26 @@
                             if (error) throw error;
                             
                             if (data && data.length > 0) {
-                                return data[0];
+                                result = data[0];
+                                // Real-Time به صورت خودکار توسط اشتراک مدیریت می‌شود
                             }
                         } else {
-                            // کاربر موجود - بهروزرسانی
-                            const { error } = await this.supabase
+                            // کاربر موجود - به‌روزرسانی
+                            const { data, error } = await this.supabase
                                 .from('businesses')
                                 .update(user)
-                                .eq('id', user.id);
+                                .eq('id', user.id)
+                                .select();
                             
                             if (error) throw error;
                             
-                            return user;
+                            if (data && data.length > 0) {
+                                result = data[0];
+                                // Real-Time به صورت خودکار توسط اشتراک مدیریت می‌شود
+                            }
                         }
+                        
+                        return result;
                     } catch (error) {
                         console.error('خطا در ذخیره کاربر در ابر:', error);
                         throw error;
@@ -2115,6 +2330,8 @@
                     });
                 },
                 
+                // ================= توابع اصلی شما بدون تغییر =================
+                // تمام توابع اصلی شما اینجا باقی میمانند...
                 switchLoginTab(tab) {
                     const userTab = document.getElementById('userLoginTab');
                     const adminTab = document.getElementById('adminLoginTab');
@@ -2497,7 +2714,7 @@
                         pendingApprovalElement.style.display = 'none';
                         userDashboardContent.style.display = 'block';
                         
-                        // نمایش تب صرافی فقط برای صرافیها
+                        // نمایش تب صرافی فقط برای صرافی ها
                         if (this.currentUser.business_type === 'exchange') {
                             exchangeTab.style.display = 'block';
                         } else {
@@ -2611,7 +2828,7 @@
                     
                     tbody.innerHTML = '';
                     
-                    // بررسی وجود دستهبندیها
+                    // بررسی وجود دسته بندی ها
                     if (!this.currentUser.categories || this.currentUser.categories.length === 0) {
                         tbody.innerHTML = `
                             <tr>
@@ -2648,7 +2865,7 @@
                     
                     soldItemsList.innerHTML = '';
                     
-                    // نمایش فقط فروشهای امروز
+                    // نمایش فقط فروش های امروز
                     const today = new Date().toDateString();
                     const todaySales = this.currentUser.sold_items ? this.currentUser.sold_items.filter(item => 
                         new Date(item.soldAt).toDateString() === today
@@ -3016,7 +3233,7 @@
                                     product.isSold = true;
                                 }
                                 
-                                // اضافه کردن به لیست فروشها
+                                // اضافه کردن به لیست فروش ها
                                 if (!this.currentUser.sold_items) {
                                     this.currentUser.sold_items = [];
                                 }
@@ -3082,7 +3299,7 @@
                         }
                     }
                     
-                    // حذف از لیست فروشها
+                    // حذف از لیست فروش ها
                     this.currentUser.sold_items.splice(soldItemIndex, 1);
                     
                     try {
@@ -3576,7 +3793,7 @@
                     document.getElementById('adminTotalProducts').textContent = this.users.reduce((total, user) => total + (user.products ? user.products.length : 0), 0);
                     document.getElementById('adminTotalSales').textContent = this.users.reduce((total, user) => total + (user.sold_items ? user.sold_items.length : 0), 0);
                     
-                    // محاسبه تجارتهای جدید (ایجاد شده در 7 روز گذشته)
+                    // محاسبه تجارت های جدید (ایجاد شده در 7 روز گذشته)
                     const oneWeekAgo = new Date();
                     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
                     const newStores = this.users.filter(user => {
@@ -3767,7 +3984,7 @@
                 viewStoreDetails(userId) {
                     const user = this.users.find(u => u.id == userId);
                     if (user) {
-                        alert(`جزئیات تجارت:\n\nنام: ${user.store_name}\nنوع: ${this.businessTypes[user.business_type] || 'نامشخص'}\nصاحب: ${user.owner_name}\nایمیل: ${user.email}\nمحصولات: ${user.products ? user.products.length : 0}\nدسته بندی ها: ${user.categories ? user.categories.length : 0}\nفروشها: ${user.sold_items ? user.sold_items.length : 0}`);
+                        alert(`جزئیات تجارت:\n\nنام: ${user.store_name}\nنوع: ${this.businessTypes[user.business_type] || 'نامشخص'}\nصاحب: ${user.owner_name}\nایمیل: ${user.email}\nمحصولات: ${user.products ? user.products.length : 0}\nدسته بندی ها: ${user.categories ? user.categories.length : 0}\nفروش ها: ${user.sold_items ? user.sold_items.length : 0}`);
                     }
                 },
                 
