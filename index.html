@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم مدیریت جامع فروشگاه ها و صرافی ها</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="ti ti-building-store"></i>
+                    سیستم مدیریت جامع تجارت
+                </div>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div id="userName"></div>
+                    <div class="user-avatar" id="userAvatar"></div>
+                    <button id="userProfile" class="btn-info">
+                        <i class="ti ti-user"></i>
+                        پروفایل
+                    </button>
+                    <button id="userLogout" class="btn-danger">
+                        <i class="ti ti-logout"></i>
+                        خروج
+                    </button>
+                    <button id="adminLogout" class="btn-danger" style="display: none;">
+                        <i class="ti ti-logout"></i>
+                        خروج مدیر
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- صفحه ورود -->
+        <div id="loginPage" class="page">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>ورود به سیستم</h2>
+                    <p>سیستم مدیریت جامع فروشگاه ها و صرافی ها</p>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" id="userLoginTab">ورود تجارت</div>
+                    <div class="tab" id="adminLoginTab">ورود مدیر</div>
+                </div>
+                
+                <form id="userLoginForm">
+                    <div class="form-group">
+                        <label for="userEmail">ایمیل:</label>
+                        <input type="email" id="userEmail" required placeholder="ایمیل خود را وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">رمز عبور:</label>
+                        <input type="password" id="userPassword" required placeholder="رمز عبور خود را وارد کنید">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        <i class="ti ti-login"></i>
+                        ورود
+                    </button>
+                    
+                    <div class="divider">
+                        <span>یا</span>
+                    </div>
+                    
+                    <div class="google-btn-container">
+                        <button type="button" class="btn-google" id="googleSignInBtn">
+                            <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            ورود با گوگل
+                        </button>
+                    </div>
+                </form>
+                
+                <form id="adminLoginForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="adminEmail">ایمیل مدیر:</label>
+                        <input type="email" id="adminEmail" required placeholder="ایمیل مدیر را وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">رمز عبور مدیر:</label>
+                        <input type="password" id="adminPassword" required placeholder="رمز عبور مدیر را وارد کنید">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        <i class="ti ti-login"></i>
+                        ورود مدیر
+                    </button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <span>حساب کاربری ندارید؟ </span>
+                    <button id="showRegisterForm" class="btn-info" style="padding: 5px 10px;">
+                        <i class="ti ti-user-plus"></i>
+                        ثبت نام
+                    </button>
+                    <div style="margin-top: 10px;">
+                        <span class="auth-link" id="forgotPassword">رمز عبور خود را فراموش کردهاید؟</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحه ثبت نام -->
+        <div id="registerPage" class="page hidden">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>ثبت نام تجارت جدید</h2>
+                    <p>فرم ثبت نام انواع فروشگاه ها و صرافی ها</p>
+                </div>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="storeName">نام تجارت:</label>
+                        <input type="text" id="storeName" required placeholder="نام تجارت خود را وارد کنید">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>نوع تجارت:</label>
+                        <div class="business-type-grid">
+                            <div class="business-type-card" data-type="retail">
+                                <div class="business-icon">
+                                    <i class="ti ti-shopping-cart"></i>
+                                </div>
+                                <div>فروشگاه خردهفروشی</div>
+                            </div>
+                            <div class="business-type-card" data-type="wholesale">
+                                <div class="business-icon">
+                                    <i class="ti ti-package"></i>
+                                </div>
+                                <div>فروشگاه عمدهفروشی</div>
+                            </div>
+                            <div class="business-type-card" data-type="exchange">
+                                <div class="business-icon">
+                                    <i class="ti ti-currency-dollar"></i>
+                                </div>
+                                <div>صرافی ارز</div>
+                            </div>
+                            <div class="business-type-card" data-type="restaurant">
+                                <div class="business-icon">
+                                    <i class="ti ti-tools-kitchen"></i>
+                                </div>
+                                <div>رستوران و کافه</div>
+                            </div>
+                            <div class="business-type-card" data-type="service">
+                                <div class="business-icon">
+                                    <i class="ti ti-briefcase"></i>
+                                </div>
+                                <div>خدمات</div>
+                            </div>
+                            <div class="business-type-card" data-type="other">
+                                <div class="business-icon">
+                                    <i class="ti ti-building-store"></i>
+                                </div>
+                                <div>سایر</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="businessType" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ownerName">نام صاحب تجارت:</label>
+                        <input type="text" id="ownerName" required placeholder="نام کامل خود را وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">ایمیل:</label>
+                        <input type="email" id="registerEmail" required placeholder="ایمیل معتبر وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">رمز عبور:</label>
+                        <input type="password" id="registerPassword" required placeholder="رمز عبور قوی انتخاب کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">تکرار رمز عبور:</label>
+                        <input type="password" id="confirmPassword" required placeholder="رمز عبور را تکرار کنید">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        <i class="ti ti-user-plus"></i>
+                        ثبت نام
+                    </button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="backToLogin" class="btn-info" style="width: 100%;">
+                        <i class="ti ti-arrow-back"></i>
+                        بازگشت به صفحه ورود
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحه بازیابی رمز عبور -->
+        <div id="forgotPasswordPage" class="page hidden">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>بازیابی رمز عبور</h2>
+                    <p>ایمیل خود را وارد کنید تا لینک بازیابی برای شما ارسال شود</p>
+                </div>
+                
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="recoveryEmail">ایمیل:</label>
+                        <input type="email" id="recoveryEmail" required placeholder="ایمیل خود را وارد کنید">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        <i class="ti ti-send"></i>
+                        ارسال لینک بازیابی
+                    </button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="backToLoginFromForgot" class="btn-info" style="width: 100%;">
+                        <i class="ti ti-arrow-back"></i>
+                        بازگشت به صفحه ورود
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- داشبورد کاربر -->
+        <div id="userDashboard" class="page hidden">
+            <div id="pendingApproval" class="notification warning" style="position: relative; margin-bottom: 20px; display: none;">
+                حساب شما در انتظار تأیید مدیر است. پس از تأیید میتوانید از امکانات سیستم استفاده کنید.
+            </div>
+            
+            <div id="userDashboardContent">
+                <div class="user-info-bar">
+                    <div>
+                        <h2 id="userStoreName">تجارت</h2>
+                        <div id="userStatus"></div>
+                        <div id="userBusinessType" class="badge badge-primary" style="margin-top: 5px;"></div>
+                    </div>
+                    <div class="user-actions">
+                        <button id="backupData" class="btn-info">
+                            <i class="ti ti-download"></i>
+                            پشتیبانگیری
+                        </button>
+                        <button id="printProducts" class="btn-info">
+                            <i class="ti ti-printer"></i>
+                            چاپ محصولات
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-widget">
+                        <h3>اقدامات سریع</h3>
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="SystemState.switchUserTab('products')">
+                                <i class="ti ti-plus"></i>
+                                افزودن محصول
+                            </button>
+                            <button class="quick-action-btn" onclick="SystemState.switchUserTab('sales')">
+                                <i class="ti ti-shopping-cart"></i>
+                                ثبت فروش
+                            </button>
+                            <button class="quick-action-btn" onclick="SystemState.switchUserTab('exchange')">
+                                <i class="ti ti-currency-dollar"></i>
+                                نرخ ارز
+                            </button>
+                            <button class="quick-action-btn" onclick="SystemState.backupData()">
+                                <i class="ti ti-download"></i>
+                                پشتیبان
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-widget">
+                        <h3>وضعیت امروز</h3>
+                        <div id="todayStats">
+                            <!-- آمار امروز اینجا نمایش داده میشود -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="ti ti-package"></i>
+                        </div>
+                        <div class="stat-number" id="totalProducts">0</div>
+                        <div>کل محصولات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="ti ti-category"></i>
+                        </div>
+                        <div class="stat-number" id="totalCategories">0</div>
+                        <div>دستهبندیها</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="ti ti-shopping-cart"></i>
+                        </div>
+                        <div class="stat-number" id="totalSold">0</div>
+                        <div>فروش امروز</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="ti ti-currency-dollar"></i>
+                        </div>
+                        <div class="stat-number" id="totalRevenue">0</div>
+                        <div>درآمد امروز (افغانی)</div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="products">محصولات</div>
+                    <div class="tab" data-tab="categories">دستهبندیها</div>
+                    <div class="tab" data-tab="sales">فروشها</div>
+                    <div class="tab" data-tab="exchange" id="exchangeTab" style="display: none;">صرافی</div>
+                    <div class="tab" data-tab="settings">تنظیمات</div>
+                    <div class="tab" data-tab="profile">پروفایل</div>
+                </div>
+                
+                <!-- تب محصولات -->
+                <div id="userProductsTab" class="user-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">لیست محصولات</h3>
+                            <div>
+                                <button id="exportProducts" class="btn-info">
+                                    <i class="ti ti-download"></i>
+                                    خروجی
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>نام محصول</th>
+                                        <th>دستهبندی</th>
+                                        <th>قیمت (افغانی)</th>
+                                        <th>موجودی</th>
+                                        <th>وضعیت</th>
+                                        <th>عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableBody">
+                                    <!-- محصولات اینجا نمایش داده میشوند -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">افزودن محصول جدید</h3>
+                        </div>
+                        <form id="productForm">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label for="productName">نام محصول:</label>
+                                    <input type="text" id="productName" required placeholder="نام محصول را وارد کنید">
+                                </div>
+                                <div class="form-group">
+                                    <label for="productCategory">دستهبندی:</label>
+                                    <select id="productCategory" required>
+                                        <option value="">انتخاب کنید</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productPrice">قیمت (افغانی):</label>
+                                    <input type="number" id="productPrice" required placeholder="قیمت به افغانی">
+                                </div>
+                                <div class="form-group">
+                                    <label for="productStock">موجودی:</label>
+                                    <input type="number" id="productStock" required placeholder="تعداد موجودی" value="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="productDescription">توضیحات:</label>
+                                <textarea id="productDescription" rows="3" placeholder="توضیحات محصول (اختیاری)"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="ti ti-plus"></i>
+                                افزودن محصول
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- تب دستهبندیها -->
+                <div id="userCategoriesTab" class="user-tab hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">لیست دستهبندیها</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>نام دستهبندی</th>
+                                        <th>تعداد محصولات</th>
+                                        <th>عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesTableBody">
+                                    <!-- دستهبندیها اینجا نمایش داده میشوند -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">افزودن دستهبندی جدید</h3>
+                        </div>
+                        <form id="categoryForm">
+                            <div class="form-group">
+                                <label for="categoryName">نام دستهبندی:</label>
+                                <input type="text" id="categoryName" required placeholder="نام دسته بندی را وارد کنید">
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="ti ti-plus"></i>
+                                افزودن دستهبندی
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- تب فروشها -->
+                <div id="userSalesTab" class="user-tab hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">فروشهای امروز</h3>
+                        </div>
+                        <div id="soldItemsList" style="padding: 20px;">
+                            <!-- فروشهای امروز اینجا نمایش داده میشوند -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ثبت فروش جدید</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div id="productsChecklist">
+                                <!-- لیست محصولات برای انتخاب -->
+                            </div>
+                            <button id="markAsSold" class="btn-success" style="margin-top: 15px;">
+                                <i class="ti ti-shopping-cart"></i>
+                                ثبت به عنوان فروخته شده
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- تب صرافی -->
+                <div id="userExchangeTab" class="user-tab hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">مدیریت نرخ ارز</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div class="form-group">
+                                <label>ارزهای فعال:</label>
+                                <div class="currency-grid">
+                                    <div class="currency-card" data-currency="USD">
+                                        <div>💵 USD</div>
+                                        <div>دلار آمریکا</div>
+                                    </div>
+                                    <div class="currency-card" data-currency="EUR">
+                                        <div>💶 EUR</div>
+                                        <div>یورو</div>
+                                    </div>
+                                    <div class="currency-card" data-currency="GBP">
+                                        <div>💷 GBP</div>
+                                        <div>پوند</div>
+                                    </div>
+                                    <div class="currency-card" data-currency="AED">
+                                        <div>🇦🇪 AED</div>
+                                        <div>درهم امارات</div>
+                                    </div>
+                                    <div class="currency-card" data-currency="PKR">
+                                        <div>🇵🇰 PKR</div>
+                                        <div>روپیه پاکستان</div>
+                                    </div>
+                                    <div class="currency-card" data-currency="IRR">
+                                        <div>🇮🇷 IRR</div>
+                                        <div>ریال ایران</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="exchangeRatesContainer">
+                                <!-- نرخهای ارز اینجا نمایش داده میشوند -->
+                            </div>
+                            
+                            <button id="saveExchangeRates" class="btn-primary" style="margin-top: 15px;">
+                                <i class="ti ti-device-floppy"></i>
+                                ذخیره نرخهای ارز
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ماشین حساب ارز</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: end;">
+                                <div class="form-group">
+                                    <label for="calcAmount">مبلغ:</label>
+                                    <input type="number" id="calcAmount" placeholder="مبلغ را وارد کنید">
+                                </div>
+                                <div style="text-align: center; padding-bottom: 20px;">
+                                    <i class="ti ti-arrow-right" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcResult">نتیجه:</label>
+                                    <input type="text" id="calcResult" readonly style="background: #f8f9fa;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label for="calcFrom">از ارز:</label>
+                                    <select id="calcFrom">
+                                        <option value="AFN">AFN - افغانی</option>
+                                        <option value="USD">USD - دلار</option>
+                                        <option value="EUR">EUR - یورو</option>
+                                        <option value="GBP">GBP - پوند</option>
+                                        <option value="AED">AED - درهم</option>
+                                        <option value="PKR">PKR - روپیه</option>
+                                        <option value="IRR">IRR - ریال</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcTo">به ارز:</label>
+                                    <select id="calcTo">
+                                        <option value="USD">USD - دلار</option>
+                                        <option value="EUR">EUR - یورو</option>
+                                        <option value="GBP">GBP - پوند</option>
+                                        <option value="AED">AED - درهم</option>
+                                        <option value="PKR">PKR - روپیه</option>
+                                        <option value="IRR">IRR - ریال</option>
+                                        <option value="AFN">AFN - افغانی</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button id="calculateExchange" class="btn-primary">
+                                <i class="ti ti-calculator"></i>
+                                محاسبه
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- تب تنظیمات -->
+                <div id="userSettingsTab" class="user-tab hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">تنظیمات تجارت</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div class="form-group">
+                                <label for="businessAddress">آدرس تجارت:</label>
+                                <textarea id="businessAddress" rows="3" placeholder="آدرس کامل تجارت"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="businessPhone">شماره تماس:</label>
+                                <input type="text" id="businessPhone" placeholder="شماره تماس تجارت">
+                            </div>
+                            <div class="form-group">
+                                <label for="businessDescription">توضیحات تجارت:</label>
+                                <textarea id="businessDescription" rows="3" placeholder="توضیحات درباره تجارت شما"></textarea>
+                            </div>
+                            <button id="saveBusinessSettings" class="btn-primary">
+                                <i class="ti ti-device-floppy"></i>
+                                ذخیره تنظیمات
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">تنظیمات تلگرام</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <div class="form-group">
+                                <label for="userTelegramToken">توکن ربات تلگرام:</label>
+                                <input type="text" id="userTelegramToken" placeholder="توکن ربات تلگرام خود را وارد کنید">
+                            </div>
+                            <div class="form-group">
+                                <label for="userTelegramChatId">Chat ID:</label>
+                                <input type="text" id="userTelegramChatId" placeholder="Chat ID خود را وارد کنید">
+                            </div>
+                            <div id="telegramStatus" class="telegram-status">
+                                <span id="telegramStatusText">آماده</span>
+                            </div>
+                            <button id="saveTelegramSettings" class="btn-primary">
+                                <i class="ti ti-device-floppy"></i>
+                                ذخیره تنظیمات تلگرام
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">مدیریت دادهها</h3>
+                        </div>
+                        <div style="padding: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="restoreData" class="btn-warning">
+                                <i class="ti ti-upload"></i>
+                                بازیابی
+                            </button>
+                            <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                            <button id="clearData" class="btn-danger">
+                                <i class="ti ti-trash"></i>
+                                پاک کردن تمام دادهها
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- تب پروفایل -->
+                <div id="userProfileTab" class="user-tab hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">اطلاعات حساب کاربری</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <form id="profileForm">
+                                <div class="form-group">
+                                    <label for="profileStoreName">نام تجارت:</label>
+                                    <input type="text" id="profileStoreName" required placeholder="نام تجارت">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profileOwnerName">نام صاحب تجارت:</label>
+                                    <input type="text" id="profileOwnerName" required placeholder="نام صاحب تجارت">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profileEmail">ایمیل:</label>
+                                    <input type="email" id="profileEmail" required placeholder="ایمیل">
+                                </div>
+                                <div class="form-group">
+                                    <label for="currentPassword">رمز عبور فعلی:</label>
+                                    <input type="password" id="currentPassword" placeholder="رمز عبور فعلی">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">رمز عبور جدید:</label>
+                                    <input type="password" id="newPassword" placeholder="رمز عبور جدید">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmNewPassword">تکرار رمز عبور جدید:</label>
+                                    <input type="password" id="confirmNewPassword" placeholder="تکرار رمز عبور جدید">
+                                </div>
+                                <button type="submit" class="btn-primary">
+                                    <i class="ti ti-device-floppy"></i>
+                                    ذخیره تغییرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- داشبورد مدیر -->
+        <div id="adminDashboard" class="page hidden">
+            <div class="user-info-bar">
+                <h2>پنل مدیریت سیستم</h2>
+                <div class="user-actions">
+                    <button id="backupAllData" class="btn-info">
+                        <i class="ti ti-download"></i>
+                        پشتیبانگیری کلی
+                    </button>
+                    <button id="createStoreAccount" class="btn-primary">
+                        <i class="ti ti-plus"></i>
+                        ایجاد تجارت
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="ti ti-building-store"></i>
+                    </div>
+                    <div class="stat-number" id="adminTotalStores">0</div>
+                    <div>تجارتها</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="ti ti-package"></i>
+                    </div>
+                    <div class="stat-number" id="adminTotalProducts">0</div>
+                    <div>کل محصولات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="ti ti-shopping-cart"></i>
+                    </div>
+                    <div class="stat-number" id="adminTotalSales">0</div>
+                    <div>فروشها</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="ti ti-user-plus"></i>
+                    </div>
+                    <div class="stat-number" id="adminNewStores">0</div>
+                    <div>تجارتهای جدید</div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="stores">مدیریت تجارتها</div>
+                <div class="tab" data-tab="approvals">درخواستهای تأیید</div>
+                <div class="tab" data-tab="credentials">اطلاعات کاربران</div>
+                <div class="tab" data-tab="system">تنظیمات سیستم</div>
+            </div>
+            
+            <!-- تب مدیریت تجارتها -->
+            <div id="adminStoresTab" class="admin-tab">
+                <div id="storesList">
+                    <!-- لیست تجارتها اینجا نمایش داده میشوند -->
+                </div>
+            </div>
+            
+            <!-- تب درخواستهای تأیید -->
+            <div id="adminApprovalsTab" class="admin-tab hidden">
+                <h3 style="margin-bottom: 20px;">درخواستهای در انتظار تأیید</h3>
+                
+                <div id="approvalList">
+                    <!-- درخواستهای تأیید اینجا نمایش داده میشوند -->
+                </div>
+            </div>
+            
+            <!-- تب اطلاعات کاربران -->
+            <div id="adminCredentialsTab" class="admin-tab hidden">
+                <h3 style="margin-bottom: 20px;">اطلاعات کاربران سیستم</h3>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نام تجارت</th>
+                                <th>نوع تجارت</th>
+                                <th>صاحب تجارت</th>
+                                <th>ایمیل</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ ثبتنام</th>
+                                <th>نوع ورود</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userCredentialsTable">
+                            <!-- اطلاعات کاربران اینجا نمایش داده میشوند -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- تب تنظیمات سیستم -->
+            <div id="adminSystemTab" class="admin-tab hidden">
+                <h3 style="margin-bottom: 20px;">تنظیمات و مدیریت سیستم</h3>
+                
+                <div class="card">
+                    <div style="padding: 20px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                            <button id="resetAllData" class="btn-danger">
+                                <i class="ti ti-refresh"></i>
+                                بازنشانی تمام دادهها
+                            </button>
+                            <button id="viewAllData" class="btn-warning">
+                                <i class="ti ti-database"></i>
+                                مشاهده تمام دادهها
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>اطلاعات مدیر سیستم:</label>
+                            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 8px;">
+                                <div><strong>ایمیل:</strong> gmail</div>
+                                <div><strong>رمز عبور:</strong> password</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودالها -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ویرایش محصول</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label for="editProductName">نام محصول:</label>
+                    <input type="text" id="editProductName" required placeholder="نام محصول">
+                </div>
+                <div class="form-group">
+                    <label for="editProductCategory">دستهبندی:</label>
+                    <select id="editProductCategory" required>
+                        <option value="">انتخاب کنید</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editProductPrice">قیمت (افغانی):</label>
+                    <input type="number" id="editProductPrice" required placeholder="قیمت به افغانی">
+                </div>
+                <div class="form-group">
+                    <label for="editProductStock">موجودی:</label>
+                    <input type="number" id="editProductStock" required placeholder="تعداد موجودی">
+                </div>
+                <div class="form-group">
+                    <label for="editProductDescription">توضیحات:</label>
+                    <textarea id="editProductDescription" rows="3" placeholder="توضیحات محصول"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="ti ti-device-floppy"></i>
+                    ذخیره تغییرات
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="createStoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ایجاد حساب تجارت جدید</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="createStoreForm">
+                <div class="form-group">
+                    <label for="newStoreName">نام تجارت:</label>
+                    <input type="text" id="newStoreName" required placeholder="نام تجارت">
+                </div>
+                <div class="form-group">
+                    <label for="newBusinessType">نوع تجارت:</label>
+                    <select id="newBusinessType" required>
+                        <option value="retail">فروشگاه خردهفروشی</option>
+                        <option value="wholesale">فروشگاه عمدهفروشی</option>
+                        <option value="exchange">صرافی ارز</option>
+                        <option value="restaurant">رستوران و کافه</option>
+                        <option value="service">خدمات</option>
+                        <option value="other">سایر</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newOwnerName">نام صاحب تجارت:</label>
+                    <input type="text" id="newOwnerName" required placeholder="نام صاحب تجارت">
+                </div>
+                <div class="form-group">
+                    <label for="newStoreEmail">ایمیل:</label>
+                    <input type="email" id="newStoreEmail" required placeholder="ایمیل">
+                </div>
+                <div class="form-group">
+                    <label for="newStorePassword">رمز عبور:</label>
+                    <input type="password" id="newStorePassword" required placeholder="رمز عبور">
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="ti ti-plus"></i>
+                    ایجاد حساب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ناحیه چاپ -->
+    <div id="printArea" class="print-area"></div>
+
+    <!-- بارگذاری Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
